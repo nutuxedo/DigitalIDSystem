@@ -7,30 +7,44 @@ testinfo = {
         "firstname": "John",
         "role": "Band",
         "bandname": "Bucket",
-        "status": "approved",
+        "status": "pending",
     }
 }
 # debug test
 # print(testinfo)
 
+def display_id(id_number, person):
+    print(f"\n--- Digital ID: {id_number} ---")
+    print(f"Name:   {person['firstname']} {person['lastname']}")
+    print(f"Role:   {person['role']}")
+    print(f"Band:   {person['bandname']}")
+    print("------------------------------")  
+
 def identify_id(id_number):
     person = testinfo.get(id_number)
     
     if person is None:
-        print(f"No record found for {id_number}")
+        print(f"No ID number found: {id_number}")
         return
+    
+    status = person["status"].lower()
 
     if person["status"].lower() == "revoked":
-        print(f"This ID is revoked: {id_number}")
+        print(f"\nThis ID is DENIED/REVOKED: {id_number}")
         return
     
-    print(f"\n--- Approved Digital ID: {id_number} ---")
-    print(f"Name:   {person['firstname']} {person['lastname']}")
-    print(f"Role:   {person['role']}")
-    print(f"Band:   {person['bandname']}")
-    print("------------------------------")
+    if person["status"].lower() == "pending":
+        print(f"\nThis ID is currently PENDING.")
+        display_id(id_number, person)
+        return
     
+    if status != "approved":
+        print("Invalid status. Access denied.")
+        return
     
+    print(f"\nThis ID is APPROVED.")
+    display_id(id_number, person)
+
 # user input 
 user_id = input("Enter ID number: ")
 identify_id(user_id)
