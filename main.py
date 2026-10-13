@@ -19,12 +19,15 @@ def identify_id(id_number):
     if person is None:
         print(f"No record found for {id_number}")
         return
+
+    if person["status"].lower() == "revoked":
+        print(f"This ID is revoked: {id_number}")
+        return
     
-    print(f"\n--- Digital ID: {id_number} ---")
+    print(f"\n--- Approved Digital ID: {id_number} ---")
     print(f"Name:   {person['firstname']} {person['lastname']}")
     print(f"Role:   {person['role']}")
     print(f"Band:   {person['bandname']}")
-    print(f"Status: {person['status']}")
     print("------------------------------")
     
     
