@@ -1,15 +1,23 @@
 # id system
 # link to Google Sheets
 
-testinfo = {
-    "ID-001": {
+id_lists = {
+        "ID-001": {
         "lastname": "Doe",
         "firstname": "John",
         "role": "Band",
         "bandname": "Bucket",
         "status": "pending",
+        },
+    
+        "ID-002": {
+        "lastname": "Doe",
+        "firstname": "John",
+        "role": "Band",
+        "bandname": "Bucket",
+        "status": "pending",
+        }
     }
-}
 # debug test
 # print(testinfo)
 
@@ -21,7 +29,7 @@ def display_id(id_number, person):
     print("------------------------------")  
 
 def identify_id(id_number):
-    person = testinfo.get(id_number)
+    person = id_lists.get(id_number)
     
     if person is None:
         print(f"No ID number found: {id_number}")
@@ -29,11 +37,11 @@ def identify_id(id_number):
     
     status = person["status"].lower()
 
-    if person["status"].lower() == "revoked":
+    if status == "revoked":
         print(f"\nThis ID is DENIED/REVOKED: {id_number}")
         return
     
-    if person["status"].lower() == "pending":
+    if status == "pending":
         print(f"\nThis ID is currently PENDING.")
         display_id(id_number, person)
         return
@@ -46,5 +54,11 @@ def identify_id(id_number):
     display_id(id_number, person)
 
 # user input 
-user_id = input("Enter ID number: ")
-identify_id(user_id)
+def main():
+    user_id = input("Enter ID number: ")
+    identify_id(user_id)
+
+# launch program
+if __name__ == "__main__":
+    main()
+    
