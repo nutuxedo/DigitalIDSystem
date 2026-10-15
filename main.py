@@ -1,25 +1,4 @@
-# id system
-# link to Google Sheets
-
-id_lists = {
-        "ID-001": {
-        "lastname": "Doe",
-        "firstname": "John",
-        "role": "Band",
-        "bandname": "Bucket",
-        "status": "pending",
-        },
-    
-        "ID-002": {
-        "lastname": "Doe",
-        "firstname": "John",
-        "role": "Band",
-        "bandname": "Bucket",
-        "status": "pending",
-        }
-    }
-# debug test
-# print(testinfo)
+from sheets import load_id_lists
 
 def display_id(id_number, person):
     print(f"\n--- Digital ID: {id_number} ---")
@@ -28,7 +7,7 @@ def display_id(id_number, person):
     print(f"Band:   {person['bandname']}")
     print("------------------------------")  
 
-def identify_id(id_number):
+def identify_id(id_number, id_lists):
     person = id_lists.get(id_number)
     
     if person is None:
@@ -55,8 +34,14 @@ def identify_id(id_number):
 
 # user input 
 def main():
+    try:
+        id_lists = load_id_lists()
+    except RuntimeError as error:
+        print(f"Could not load ID data: {error}")
+        return
+
     user_id = input("Enter ID number: ")
-    identify_id(user_id)
+    identify_id(user_id, id_lists)
 
 # launch program
 if __name__ == "__main__":
