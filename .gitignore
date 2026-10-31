@@ -1,6 +1,13 @@
+# essential stuff to ignore (lol thanks Copilot)
 .venv/
 .vscode/
 __pycache__/
 *.pyc
 credentials.json
+oauth_client.json
 token.json
+
+# i ignored this cuz want to practice how googlesheets integration work to python
+# might include it in a future commit??? 
+# only time will tell xDDDDD
+randomstuff/
