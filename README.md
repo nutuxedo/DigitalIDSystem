@@ -13,7 +13,8 @@ Work in progress: a Google Sheets-based digital ID system with a Python command-
 ## How It Works
 
 1. Google Form responses are stored as rows in Google Sheets.
-2. Python authenticates with a Google service account and reads the worksheet.
+2. Python authenticates with your Google account through OAuth and reads the
+   worksheet.
 3. The user enters an ID number.
 4. The program looks up the ID in the downloaded rows.
 5. The ID status is checked:
@@ -27,11 +28,14 @@ Work in progress: a Google Sheets-based digital ID system with a Python command-
 ## Google Sheets setup
 
 1. In Google Cloud, create a project and enable the **Google Sheets API**.
-2. Create a service account and download its JSON key into this project as
-   `credentials.json`. Never commit or share this file.
-3. Open the JSON file and copy the service account's `client_email`.
-4. Share the Google Sheet with that email as a **Viewer**. The program only
-   requests read-only access.
+2. In **APIs & Services > OAuth consent screen**, configure an OAuth consent
+   screen. For a personal hobby project, choose **External**, add your Google
+   account as a test user, and request only the read-only Sheets scope.
+3. In **APIs & Services > Credentials**, create an OAuth client ID for a
+   **Desktop app**. Download the JSON file into this project as
+   `oauth_client.json`. Never commit or share this file.
+4. Make sure the Google account you use for OAuth has at least **Viewer**
+   access to the spreadsheet.
 5. Copy the spreadsheet ID from its URL:
    `https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit`.
 6. Install the Python dependencies:
@@ -40,7 +44,16 @@ Work in progress: a Google Sheets-based digital ID system with a Python command-
    python -m pip install -r requirements.txt
    ```
 
-7. Set the spreadsheet ID before running. PowerShell example:
+7. Set the spreadsheet ID before running.
+
+   Linux/macOS example:
+
+   ```bash
+   export GOOGLE_SHEET_ID="your-spreadsheet-id"
+   python main.py
+   ```
+
+   PowerShell example:
 
    ```powershell
    $env:GOOGLE_SHEET_ID = "your-spreadsheet-id"
@@ -50,6 +63,12 @@ Work in progress: a Google Sheets-based digital ID system with a Python command-
 The default worksheet name is `Form Responses 1`. If your worksheet has a
 different name, set `GOOGLE_WORKSHEET_NAME`:
 
+```bash
+export GOOGLE_WORKSHEET_NAME="Responses"
+```
+
+Or in PowerShell:
+
 ```powershell
 $env:GOOGLE_WORKSHEET_NAME = "Responses"
 ```
@@ -58,11 +77,17 @@ The first row must contain columns for an ID, first name, last name, role,
 band, and status. Common alternatives such as `ID Number`, `First Name`, and
 `Approval Status` are accepted. Every later row is one ID record.
 
+On the first run, the program opens a browser window for Google sign-in and
+consent. It saves the authorization token locally in `token.json`, so later
+runs normally do not require signing in again. Keep both JSON files private;
+they are ignored by Git if you add them to `.gitignore`.
+
 ## Run
 
 ```bash
 python main.py
 ```
 
-The service account is used because this is a non-interactive command-line
-program: it can authenticate without asking a person to sign in every run.
+OAuth is used because this is an interactive command-line program run by a
+person. Google Cloud does not normally charge for this API usage, and billing
+is not needed for this small hobby project.
