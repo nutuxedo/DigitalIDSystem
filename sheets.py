@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-
 DEFAULT_OAUTH_CLIENT_FILE = "oauth_client.json"
 DEFAULT_OAUTH_TOKEN_FILE = "token.json"
 DEFAULT_WORKSHEET_NAME = "Form Responses 1"

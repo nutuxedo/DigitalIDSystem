@@ -73,9 +73,21 @@ Or in PowerShell:
 $env:GOOGLE_WORKSHEET_NAME = "Responses"
 ```
 
-The first row must contain columns for an ID, first name, last name, role,
-band, and status. Common alternatives such as `ID Number`, `First Name`, and
-`Approval Status` are accepted. Every later row is one ID record.
+The first row must contain these columns:
+
+- `ID`
+- `First Name`
+- `Last Name`
+- `Roles`
+- `Name of Band/Artist`
+- `Status`
+
+Each later row represents one ID record. The column order does not matter because
+the program finds columns by their header names.
+
+The Google Form may contain additional columns such as timestamp, email address,
+sub-role, and headshot. These are allowed and do not need to be manually
+reordered.
 
 On the first run, the program opens a browser window for Google sign-in and
 consent. It saves the authorization token locally in `token.json`, so later

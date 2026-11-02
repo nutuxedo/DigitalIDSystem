@@ -1,5 +1,6 @@
 from sheets import load_id_lists
 
+
 def display_id(id_number, person):
     print(f"\n--- Digital ID: {id_number} ---")
     print(f"Name:   {person['firstname']} {person['lastname']}")
@@ -22,7 +23,7 @@ def identify_id(id_number, id_lists):
         return
     
     if status == "pending":
-        print(f"\nThis ID is currently PENDING.")
+        print("\nThis ID is currently PENDING.")
         display_id(id_number, person)
         return
     
@@ -30,7 +31,7 @@ def identify_id(id_number, id_lists):
         print("Invalid status. Access denied.")
         return
     
-    print(f"\nThis ID is APPROVED.")
+    print("\nThis ID is APPROVED.")
     display_id(id_number, person)
 
 # user input 
