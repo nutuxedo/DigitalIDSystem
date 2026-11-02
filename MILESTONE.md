@@ -12,7 +12,15 @@
 - [x] Added setup and usage instructions to the README.
 - [x] Added the required Google API dependencies.
 
-## Milestone 2: Test and harden ID verification
+## Milestone 2: QR code generation
+
+- [ ] Define the QR payload fields: ID, event, and expiry.
+- [ ] Add signing so QR data cannot be altered unnoticed.
+- [ ] Generate QR images for approved IDs.
+- [ ] Add a local command to test and preview generated QR codes.
+- [ ] Document QR generation for an event.
+
+## Milestone 3: Test and harden ID verification (Low priority)
 
 - [ ] Test an approved ID.
 - [ ] Test a pending ID.
