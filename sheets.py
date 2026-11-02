@@ -2,17 +2,38 @@ import os
 from pathlib import Path
 
 
-DEFAULT_CREDENTIALS_FILE = "credentials.json"
+DEFAULT_OAUTH_CLIENT_FILE = "oauth_client.json"
+DEFAULT_OAUTH_TOKEN_FILE = "token.json"
 DEFAULT_WORKSHEET_NAME = "Form Responses 1"
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 # These aliases make the code work with common Google Form question wording.
 COLUMN_ALIASES = {
     "id": {"id", "id number", "id_number", "idnumber"},
-    "lastname": {"last name", "lastname", "surname"},
-    "firstname": {"first name", "firstname", "given name"},
-    "role": {"role", "position"},
-    "bandname": {"band", "band name", "bandname"},
+    "lastname": {
+        "last name", 
+        "lastname", 
+        "surname",
+        "full name (lastname, firstname)"},
+    "firstname": {
+        "first name", 
+        "firstname", 
+        "given name",
+        "full name (lastname, firstname)"},
+    "role": {"role", "roles", "position"},
+    "subrole": {"sub-role", "subrole"},
+    "headshot":{
+        "headshot picture",
+        "headshot",
+        "please upload your face (headshot)"},
+    "bandname": {
+        "band", 
+        "band name", 
+        "bandname",
+        "name of band/artist"},
     "status": {"status", "approval status", "id status"},
+    "timestamp": {"timestamp", "time", "date and time"},
+    "email": {"email address", "email", "email add"},
 }
 
 
@@ -47,16 +68,20 @@ def _find_columns(headers):
 
 def load_id_lists():
     """Read ID records from the Google Form response worksheet."""
-    credentials_file = Path(
-        os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", DEFAULT_CREDENTIALS_FILE)
+    oauth_client_file = Path(
+        os.getenv("GOOGLE_OAUTH_CLIENT_FILE", DEFAULT_OAUTH_CLIENT_FILE)
+    )
+    oauth_token_file = Path(
+        os.getenv("GOOGLE_OAUTH_TOKEN_FILE", DEFAULT_OAUTH_TOKEN_FILE)
     )
     spreadsheet_id = os.getenv("GOOGLE_SHEET_ID")
     worksheet_name = os.getenv("GOOGLE_WORKSHEET_NAME", DEFAULT_WORKSHEET_NAME)
 
-    if not credentials_file.is_file():
+    if not oauth_client_file.is_file():
         raise RuntimeError(
-            f"credentials file not found at '{credentials_file}'. "
-            "Set GOOGLE_SERVICE_ACCOUNT_FILE to its path."
+            f"OAuth client file not found at '{oauth_client_file}'. "
+            "Download a Desktop OAuth client JSON file and save it as "
+            f"'{DEFAULT_OAUTH_CLIENT_FILE}', or set GOOGLE_OAUTH_CLIENT_FILE."
         )
     if not spreadsheet_id:
         raise RuntimeError(
@@ -66,20 +91,33 @@ def load_id_lists():
 
     try:
         import gspread
-        from google.oauth2.service_account import Credentials
+        from google.auth.transport.requests import Request
+        from google.oauth2.credentials import Credentials
+        from google_auth_oauthlib.flow import InstalledAppFlow
     except ImportError as error:
         raise RuntimeError(
             "Google dependencies are missing. Install them with "
             "'python -m pip install -r requirements.txt'."
         ) from error
 
-    scopes = [
-        "https://www.googleapis.com/auth/spreadsheets.readonly",
-    ]
-    credentials = Credentials.from_service_account_file(
-        credentials_file,
-        scopes=scopes,
-    )
+    credentials = None
+    if oauth_token_file.is_file():
+        credentials = Credentials.from_authorized_user_file(
+            oauth_token_file,
+            SCOPES,
+        )
+
+    if credentials is None or not credentials.valid:
+        if credentials and credentials.expired and credentials.refresh_token:
+            credentials.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                oauth_client_file,
+                SCOPES,
+            )
+            credentials = flow.run_local_server(port=0)
+        oauth_token_file.write_text(credentials.to_json(), encoding="utf-8")
+
     client = gspread.authorize(credentials)
 
     try:
@@ -88,7 +126,7 @@ def load_id_lists():
     except gspread.exceptions.GSpreadException as error:
         raise RuntimeError(
             "Could not read the worksheet. Check the spreadsheet ID, worksheet "
-            "name, and that the sheet is shared with the service account email."
+            "name, and that your Google account can access the sheet."
         ) from error
 
     if not rows:

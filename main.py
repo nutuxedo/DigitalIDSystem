@@ -5,6 +5,7 @@ def display_id(id_number, person):
     print(f"Name:   {person['firstname']} {person['lastname']}")
     print(f"Role:   {person['role']}")
     print(f"Band:   {person['bandname']}")
+    print(f"Headshot picture: {person['headshot']}")
     print("------------------------------")  
 
 def identify_id(id_number, id_lists):
