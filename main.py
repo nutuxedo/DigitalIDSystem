@@ -1,34 +1,15 @@
-# id system
-# link to Google Sheets
+from sheets import load_id_lists
 
-id_lists = {
-        "ID-001": {
-        "lastname": "Doe",
-        "firstname": "John",
-        "role": "Band",
-        "bandname": "Bucket",
-        "status": "pending",
-        },
-    
-        "ID-002": {
-        "lastname": "Doe",
-        "firstname": "John",
-        "role": "Band",
-        "bandname": "Bucket",
-        "status": "pending",
-        }
-    }
-# debug test
-# print(testinfo)
 
 def display_id(id_number, person):
     print(f"\n--- Digital ID: {id_number} ---")
     print(f"Name:   {person['firstname']} {person['lastname']}")
     print(f"Role:   {person['role']}")
     print(f"Band:   {person['bandname']}")
+    print(f"Headshot picture: {person['headshot']}")
     print("------------------------------")  
 
-def identify_id(id_number):
+def identify_id(id_number, id_lists):
     person = id_lists.get(id_number)
     
     if person is None:
@@ -42,7 +23,7 @@ def identify_id(id_number):
         return
     
     if status == "pending":
-        print(f"\nThis ID is currently PENDING.")
+        print("\nThis ID is currently PENDING.")
         display_id(id_number, person)
         return
     
@@ -50,13 +31,19 @@ def identify_id(id_number):
         print("Invalid status. Access denied.")
         return
     
-    print(f"\nThis ID is APPROVED.")
+    print("\nThis ID is APPROVED.")
     display_id(id_number, person)
 
 # user input 
 def main():
+    try:
+        id_lists = load_id_lists()
+    except RuntimeError as error:
+        print(f"Could not load ID data: {error}")
+        return
+
     user_id = input("Enter ID number: ")
-    identify_id(user_id)
+    identify_id(user_id, id_lists)
 
 # launch program
 if __name__ == "__main__":
