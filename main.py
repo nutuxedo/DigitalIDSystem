@@ -13,7 +13,12 @@ def get_expiry_date():
 
 def get_event_name():
     while True:
-        event_name = input("Enter event name: ").strip()
+        event_name = input("Enter event name (to exit the program, type exit): ").strip()
+        
+        if event_name.lower() == "exit":
+            print("Exiting program.")
+            raise SystemExit
+        
         if event_name:
             return event_name
 
