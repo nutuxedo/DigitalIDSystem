@@ -7,6 +7,7 @@ credentials.json
 oauth_client.json
 token.json
 .ruff_cache/
+generated_qr_images/*.png
 
 # i ignored this cuz want to practice how googlesheets integration work to python
 # might include it in a future commit??? 
