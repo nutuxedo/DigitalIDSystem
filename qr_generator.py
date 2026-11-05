@@ -1,9 +1,18 @@
+import base64
 import json
 import re
 from pathlib import Path
 
 import qrcode
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey,
+)
 
+private_key = Ed25519PrivateKey.generate()
+
+# digital signature section
+def sign_message(message, private_key):
+    return private_key.sign(message)
 
 def qr_generation(id_number, person, event_name, expiry_date):
     payload = {
@@ -16,6 +25,17 @@ def qr_generation(id_number, person, event_name, expiry_date):
         "event": event_name,
         "expiry": expiry_date
     }
+    
+    message = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    
+    signature = sign_message(message, private_key)
+    
+    payload["signature"] = base64.b64encode(signature).decode("ascii")
+    
     safe_id = re.sub(r"[^A-Za-z0-9_-]+", "_", id_number).strip("_")
     output_folder = Path("generated_qr_images")
     output_folder.mkdir(parents=True, exist_ok=True)
