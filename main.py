@@ -19,10 +19,25 @@ def get_event_name():
             print("Exiting program.")
             raise SystemExit
         
-        if event_name:
-            return event_name
+        if event_name.lower() in (
+            "exis", 
+            "exix", 
+            "exid", 
+            "exir", 
+            "exitt", 
+            "wxit", 
+            "rxit", 
+            "dxit", 
+            "efit"
+        ):
+            print("Did you mean 'exit'?")
+            continue
 
-        print("Event name cannot be empty.")
+        if not event_name:
+            print("Event name cannot be empty.")
+            continue
+        
+        return event_name
 
 def display_id(id_number, person, event_name, expiry_date):
     print(f"\n--- Digital ID: {id_number} ---")
