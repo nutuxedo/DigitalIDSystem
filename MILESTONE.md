@@ -1,6 +1,6 @@
 # Milestones and To-Do development
 
-## Milestone 1: Google Sheets digital ID integration
+## [DONE/MERGED] Milestone 1: Google Sheets digital ID integration
 
 - [x] Connected the Python application to Google Sheets through the Google Sheets API.
 - [x] Added OAuth authentication and token reuse.
@@ -12,16 +12,25 @@
 - [x] Added setup and usage instructions to the README.
 - [x] Added the required Google API dependencies.
 
-## Milestone 2: Test and harden ID verification
+## Milestone 2: QR code generation
 
-- [ ] Test an approved ID.
-- [ ] Test a pending ID.
-- [ ] Test a revoked ID.
-- [ ] Test an unknown ID.
-- [ ] Test a duplicate ID.
-- [ ] Improve error messages.
-- [ ] Test missing Google Sheet columns.
-- [ ] Confirm private files are ignored by Git.
+- [x] Define the QR payload fields: ID, event, and expiry.
+- [x] Add signing so QR data cannot be altered unnoticed.
+- [x] Generate QR images for approved IDs.
+- [x] Add a local prompt to test and preview generated QR codes.
+- [ ] Document QR generation for an event.
+- [x] Create a folder for the generated QRs
+
+## [DONE] Milestone 3: Test and harden ID verification (Low priority)
+
+- [x] Test an approved ID.
+- [x] Test a pending ID.
+- [x] Test a revoked ID.
+- [x] Test an unknown ID.
+- [x] Test a duplicate ID.
+- [x] Improve error messages.
+- [x] Test missing Google Sheet columns.
+- [x] Confirm private files are ignored by Git.
 
 Done means:
 
