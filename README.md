@@ -1,5 +1,5 @@
 # Digital ID System
 
-new readme soon
+New README here
 
 refer to old_README.md if you need something to read to
