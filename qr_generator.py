@@ -4,16 +4,44 @@ import re
 from pathlib import Path
 
 import qrcode
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
 )
 
 private_key = Ed25519PrivateKey.generate()
+public_key = private_key.public_key()
 
 # digital signature section
 def sign_message(message, private_key):
     return private_key.sign(message)
 
+def verify_payload(payload):
+    signature_text = payload.pop("signature", None)
+
+    if signature_text is None:
+        print("ERROR: QR code has no signature.")
+        return False
+
+    try:
+        signature = base64.b64decode(signature_text)
+
+        message = json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+        public_key.verify(signature, message)
+    except (InvalidSignature, ValueError):
+        print("ERROR: QR data was changed or is invalid.")
+        return False
+
+    print("Signature is valid.")
+    return True
+
+
+# main qr generation
 def qr_generation(id_number, person, event_name, expiry_date):
     payload = {
         "id": id_number,
@@ -56,3 +84,4 @@ def qr_inquiry(id_number, person, event_name, expiry_date):
             print("QR not generated\n")
             break
         print("Please enter Y or N.")
+        
