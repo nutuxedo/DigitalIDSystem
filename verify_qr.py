@@ -2,12 +2,32 @@
 
 import base64
 import json
+from datetime import date
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
 
 PUBLIC_KEY_FILE = "signing_public_key.pem"
 
+def check_expiry(payload):
+    expiry_date = date.fromisoformat(payload["expiry"])
+    
+    if expiry_date < date.today():
+        print("Error: QR is EXPIRED.")
+        return False
+    
+    print("QR is still valid.")
+    return True
+
+def check_status(payload):
+    status = payload.get("status", "").strip().lower()
+
+    if status != "approved":
+        print(f"Error: ID status is {status or 'missing'}.")
+        return False
+
+    print("ID status is approved.")
+    return True
 
 def load_public_key():
     with open(PUBLIC_KEY_FILE, "rb") as key_file:
@@ -37,3 +57,18 @@ def verify_payload(payload, public_key):
     
     print("QR signature is valid.")
     return True
+
+# Verification test if runned here directly
+if __name__ == "__main__":
+    print("Paste the JSON text from your QR code:")
+    qr_text = input("> ")
+
+    try:
+        payload = json.loads(qr_text)
+    except json.JSONDecodeError:
+        print("Error: QR data is not valid JSON.")
+        raise SystemExit(1)
+
+    public_key = load_public_key()
+    if verify_payload(payload, public_key) and check_expiry(payload):
+        check_status(payload)
