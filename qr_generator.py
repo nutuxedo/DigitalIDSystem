@@ -10,7 +10,17 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
 )
 
+PUBLIC_KEY_FILE = Path("signing_public_key.pem")
 PRIVATE_KEY_FILE = Path("signing_private_key.pem")
+
+def save_public_key(public_key):
+    if not PUBLIC_KEY_FILE.exists():
+        PUBLIC_KEY_FILE.write_bytes(
+            public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
+            )
+        )
 
 def load_or_create_private_key():
     if PRIVATE_KEY_FILE.exists():
@@ -34,6 +44,7 @@ def load_or_create_private_key():
 
 private_key = load_or_create_private_key()
 public_key = private_key.public_key()
+save_public_key(public_key)
 
 # digital signature section
 def sign_message(message, private_key):
