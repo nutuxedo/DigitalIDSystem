@@ -5,11 +5,34 @@ from pathlib import Path
 
 import qrcode
 from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
 )
 
-private_key = Ed25519PrivateKey.generate()
+PRIVATE_KEY_FILE = Path("signing_private_key.pem")
+
+def load_or_create_private_key():
+    if PRIVATE_KEY_FILE.exists():
+        return serialization.load_pem_private_key(
+            PRIVATE_KEY_FILE.read_bytes(),
+            password=None,
+        )
+
+    private_key = Ed25519PrivateKey.generate()
+    
+    PRIVATE_KEY_FILE.write_bytes(
+        private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+    )
+    
+    print(f"Created signing key: {PRIVATE_KEY_FILE}")
+    return private_key
+
+private_key = load_or_create_private_key()
 public_key = private_key.public_key()
 
 # digital signature section

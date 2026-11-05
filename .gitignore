@@ -1,4 +1,4 @@
-# essential stuff to ignore (lol thanks Copilot)
+# Important
 .venv/
 .vscode/
 __pycache__/
@@ -8,6 +8,7 @@ oauth_client.json
 token.json
 .ruff_cache/
 generated_qr_images/*.png
+signing_private_key.pem
 
 # i ignored this cuz want to practice how googlesheets integration work to python
 # might include it in a future commit??? 
