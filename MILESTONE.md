@@ -37,3 +37,31 @@ Done means:
 ```text
 The program handles normal and incorrect input safely.
 ```
+
+## Milestone 4: QR scanning and verification
+
+- [x] Read QR data directly from an image
+- [x] Verify the QR signature automatically
+- [x] Check expiry date
+- [x] Check approval status
+- [x] Display clear accepted/rejected results
+- [x] Test valid, tampered, expired, and revoked QR codes
+
+## Milestone 5: Bouncer device verification
+
+- [ ] Run the verifier on a phone, tablet, or laptop
+- [ ] Scan QR codes using the device camera
+- [ ] Display clear ACCEPTED or REJECTED results
+- [ ] Make repeated scanning quick and easy
+- [ ] Handle invalid or unreadable QR codes
+- [ ] Test the workflow at an event
+
+## Future security and reliability follow-up
+
+These improvements are intentionally deferred until the core project is complete:
+
+- [ ] Protect the private signing key with secure storage or encryption.
+- [ ] Check current revocation status instead of trusting an old QR status.
+- [ ] Reject malformed QR data without showing a traceback.
+- [ ] Reduce personal information stored in QR codes.
+- [ ] Detect and safely handle public/private key mismatches.

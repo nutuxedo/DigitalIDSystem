@@ -4,3 +4,4 @@ google-auth-oauthlib>=1.0,<2
 qrcode>=8.2
 pillow>=13.0.0
 cryptography>=50.0.2
+opencv-python>=4.10,<5
