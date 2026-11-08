@@ -65,7 +65,8 @@ phone app remains a possible future direction, not a final decision.
 
 Might do these before or after the November 20 music event:
 
-- [ ] Consolidate the .py files into one menu (CLI) [must]
+- [ ] Consolidate the .py files into one menu (CLI) [MUST]
+- [ ] Show ID details on verifier app [MUST]
 - [ ] Protect the private signing key with secure storage or encryption.
 - [ ] Check current revocation status instead of trusting an old QR status.
 - [ ] Reject malformed QR data without showing a traceback.

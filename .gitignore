@@ -10,7 +10,5 @@ token.json
 generated_qr_images/*.png
 signing_private_key.pem
 
-# i ignored this cuz want to practice how googlesheets integration work to python
-# might include it in a future commit??? 
-# only time will tell xDDDDD
+# Experimental folder (kept to myself)
 experiments/
