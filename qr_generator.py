@@ -113,6 +113,7 @@ def qr_inquiry(id_number, person, event_name, expiry_date):
         if answer in ("y", ""):
             output_file = qr_generation(id_number, person, event_name, expiry_date)
             print(f"QR generated: {output_file}\n")
+            print("Located at 'generated_qr_images' folder.")
             break
         if answer == "n":
             print("QR not generated\n")
