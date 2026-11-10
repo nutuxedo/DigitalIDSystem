@@ -53,9 +53,10 @@ verifier, and a phone or tablet scans QR codes through its browser.
 - [x] Test the event workflow.
 - [x] Prepare a laptop backup method.
 
-## To-do after Milestone 5
+## To-do after Milestone 5 [Refer to GitHub issues]
 
 Planned before or after the November 20 event:
+Also check FEEDBACK_TESTS.md for any additional information
 
 - [ ] Add one CLI menu for all tools. [MUST]
 - [ ] Show ID details in the verifier app. [MUST]
