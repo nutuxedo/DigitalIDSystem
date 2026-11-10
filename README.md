@@ -1,5 +1,12 @@
 # Digital ID System
 
-New README here
+A Python CLI digital ID platform for issuing and verifying event credentials.
 
-refer to old_README.md if you need something to read to
+> **Note:** This is a working prototype, changes in development will occur rapidly and may not reflect the final system.
+
+## Features
+
+* Able to read ID entries from Google Form via Google Sheets integration
+* Lookup ID entries and generate a QR with the information
+* Local server (Flask) and Offline-capable for QR verification
+
