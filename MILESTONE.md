@@ -1,77 +1,68 @@
-# Milestones and To-Do development
+# Milestones and To-Do List
 
 ## [DONE/MERGED] Milestone 1: Google Sheets digital ID integration
 
-- [x] Connected the Python application to Google Sheets through the Google Sheets API.
-- [x] Added OAuth authentication and token reuse.
-- [x] Read digital ID records submitted through Google Forms.
-- [x] Matched spreadsheet columns by header name instead of fixed column positions.
-- [x] Supported ID, first name, last name, role, band, and status fields.
-- [x] Implemented approved, pending, revoked, invalid-status, and unknown-ID handling.
-- [x] Displayed the matching person's digital ID information in the command-line application.
-- [x] Added setup and usage instructions to the README.
-- [x] Added the required Google API dependencies.
+- [x] Connected the app to Google Sheets.
+- [x] Added Google OAuth login and token reuse.
+- [x] Read Google Form responses.
+- [x] Matched columns by header name.
+- [x] Added ID, name, role, band, and status fields.
+- [x] Added approved, pending, revoked, invalid, and unknown ID handling.
+- [x] Displayed ID details in the CLI.
+- [x] Added setup instructions to the README.
+- [x] Added required dependencies.
 
 ## [DONE] Milestone 2: QR code generation
 
-- [x] Define the QR payload fields: ID, event, and expiry.
-- [x] Add signing so QR data cannot be altered unnoticed.
+- [x] Added ID, event, and expiry to QR data.
+- [x] Signed QR data to prevent unnoticed changes.
 - [x] Generate QR images for approved IDs.
-- [x] Add a local prompt to test and preview generated QR codes.
-- [x] Create a folder for the generated QRs
+- [x] Added a prompt to generate and preview QR codes.
+- [x] Created a folder for generated QR codes.
 
 ## [DONE] Milestone 3: Test and harden ID verification
 
-- [x] Test an approved ID.
-- [x] Test a pending ID.
-- [x] Test a revoked ID.
-- [x] Test an unknown ID.
-- [x] Test a duplicate ID.
-- [x] Improve error messages.
-- [x] Test missing Google Sheet columns.
-- [x] Confirm private files are ignored by Git.
+- [x] Tested approved, pending, revoked, and unknown IDs.
+- [x] Tested duplicate IDs.
+- [x] Improved error messages.
+- [x] Tested missing Google Sheet columns.
+- [x] Confirmed private files are ignored by Git.
 
 ## [MERGED PR #3] Milestone 4: QR scanning and verification
 
-- [x] Read QR data directly from an image
-- [x] Verify the QR signature automatically
-- [x] Check expiry date
-- [x] Check approval status
-- [x] Display clear accepted/rejected results
-- [x] Test valid, tampered, expired, and revoked QR codes
+- [x] Read QR data from images.
+- [x] Verified QR signatures.
+- [x] Checked expiry dates and approval status.
+- [x] Displayed clear results.
+- [x] Tested valid, changed, expired, and revoked QR codes.
 
 ## Milestone 5: Event-ready bouncer verification (Target: November 20)
 
-The immediate goal is a reliable prototype that can be used at the event.
-The current direction is a local Flask web verifier: a laptop runs the
-verifier and a phone or tablet uses its browser to scan QR codes. A native
-phone app remains a possible future direction, not a final decision.
+Goal: a reliable prototype for event use. A laptop runs the local Flask
+verifier, and a phone or tablet scans QR codes through its browser.
 
-**Crucial Milestone - as this will make the program be able to run on a gig event.**
-
-- [x] Run the verifier on a laptop
-- [x] Start a local Flask web verifier
-- [x] Display a browser page with a scan button
-- [x] Scan QR codes using a device camera
-- [x] Connect scanned QR data to Python signature verification
-- [x] Display clear ACCEPTED or REJECTED results
-- [x] Make repeated scanning quick and easy
-- [x] Handle invalid or unreadable QR codes
-- [x] Work without internet access
-- [x] Test the complete workflow on the event device
-- [x] Prepare a backup verification method
+- [x] Run the verifier on a laptop.
+- [x] Start the local Flask web app.
+- [x] Add a browser scan page.
+- [x] Scan QR codes with a device camera.
+- [x] Connect scans to signature verification.
+- [x] Display clear results.
+- [x] Support repeated scanning.
+- [x] Handle invalid and unreadable QR codes.
+- [x] Work without internet access.
+- [x] Test the event workflow.
+- [x] Prepare a laptop backup method.
 
 ## To-do after Milestone 5
 
-Might do these before or after the November 20 music event:
+Planned before or after the November 20 event:
 
-- [ ] Consolidate the .py files into one menu (CLI) [MUST]
-- [ ] Show ID details on verifier app [MUST]
-- [ ] Protect the private signing key with secure storage or encryption.
-- [ ] Check current revocation status instead of trusting an old QR status.
-- [ ] Reject malformed QR data without showing a traceback.
-- [ ] Reduce personal information stored in QR codes.
-- [ ] Detect and safely handle public/private key mismatches.
-- [ ] Build a native Android app for QR verification only
-- [ ] Revamp README.md
-
+- [ ] Add one CLI menu for all tools. [MUST]
+- [ ] Show ID details in the verifier app. [MUST]
+- [ ] Protect the private signing key.
+- [ ] Check current revocation status.
+- [ ] Handle malformed QR data safely.
+- [ ] Store less personal information in QR codes.
+- [ ] Detect public/private key mismatches.
+- [ ] Build a native Android QR verifier.
+- [ ] Redo the README.

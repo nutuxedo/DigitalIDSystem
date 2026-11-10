@@ -80,11 +80,10 @@ def identify_id(id_number, id_lists, event_name, expiry_date):
     display_id(id_number, person, event_name, expiry_date)
     qr_generator.qr_inquiry(id_number, person, event_name, expiry_date)
 
-# user input
-def main():
+def id_lookup():
     event_name = get_event_name()
     expiry_date = get_expiry_date()
-
+    
     try:
         print("Obtaining information from Google Sheets...")
         id_lists = load_id_lists()
@@ -94,6 +93,18 @@ def main():
 
     user_id = input("Enter ID number: ")
     identify_id(user_id, id_lists, event_name, expiry_date)
+
+def show_menu():
+    print("Digital ID System")
+    print("1. ID lookup and generate QR code")
+    print("2. Verify QR")
+    print("3. Start phone verifier server")
+    print("4. Exit")
+
+
+def main():
+    show_menu()
+    
 
 # launch program
 if __name__ == "__main__":
