@@ -123,7 +123,7 @@ def show_menu():
     print("1. ID lookup and generate QR code")
     print("2. Verify QR image")
     print("3. Start QR verifier server (No function)")
-    print("3. Exit")
+    print("4. Exit")
 
 
 def main():
