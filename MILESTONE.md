@@ -67,3 +67,4 @@ Also check FEEDBACK_TESTS.md for any additional information
 - [ ] Detect public/private key mismatches.
 - [ ] Build a native Android QR verifier.
 - [ ] Redo the README.
+- [ ] Simplify the directory (looks too messy)
