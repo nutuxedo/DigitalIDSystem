@@ -58,13 +58,14 @@ verifier, and a phone or tablet scans QR codes through its browser.
 Planned before or after the November 20 event:
 Also check FEEDBACK_TESTS.md for any additional information
 
-- [ ] Add one CLI menu for all tools. [MUST]
-- [ ] Show ID details in the verifier app. [MUST]
-- [ ] Protect the private signing key.
-- [ ] Check current revocation status.
-- [ ] Handle malformed QR data safely.
-- [ ] Store less personal information in QR codes.
-- [ ] Detect public/private key mismatches.
-- [ ] Build a native Android QR verifier.
+- [x] Add one CLI menu for ID lookup/QR generation and QR-image verification. ([#10](https://github.com/nutuxedo/DigitalIDSystem/issues/10))
+- [ ] Integrate the Flask phone verifier into the CLI menu.
+- [ ] Show ID details in the verifier app. [MUST] ([#9](https://github.com/nutuxedo/DigitalIDSystem/issues/9))
+- [ ] Protect the private signing key. ([#5](https://github.com/nutuxedo/DigitalIDSystem/issues/5))
+- [ ] Check current revocation status. ([#7](https://github.com/nutuxedo/DigitalIDSystem/issues/7))
+- [ ] Handle malformed QR data safely. ([#6](https://github.com/nutuxedo/DigitalIDSystem/issues/6))
+- [ ] Store less personal information in QR codes. ([#11](https://github.com/nutuxedo/DigitalIDSystem/issues/11))
+- [ ] Detect public/private key mismatches. ([#8](https://github.com/nutuxedo/DigitalIDSystem/issues/8))
+- [ ] Build a native Android QR verifier. ([#12](https://github.com/nutuxedo/DigitalIDSystem/issues/12))
 - [ ] Redo the README.
 - [ ] Simplify the directory (looks too messy)

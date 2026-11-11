@@ -94,16 +94,55 @@ def id_lookup():
     user_id = input("Enter ID number: ")
     identify_id(user_id, id_lists, event_name, expiry_date)
 
+
+def verify_qr_image():
+    from verify_qr import (
+        check_expiry,
+        check_status,
+        decode_qr_image,
+        load_public_key,
+        verify_payload,
+    )
+
+    image_path = input("Enter the path to the QR image: ").strip()
+    if not image_path:
+        print("QR image path cannot be empty.")
+        return
+
+    try:
+        payload = decode_qr_image(image_path)
+        public_key = load_public_key()
+        if verify_payload(payload, public_key) and check_expiry(payload):
+            check_status(payload)
+    except (OSError, RuntimeError, TypeError, ValueError, KeyError) as error:
+        print(f"Could not verify QR image: {error}")
+
+
 def show_menu():
     print("Digital ID System")
     print("1. ID lookup and generate QR code")
-    print("2. Verify QR")
-    print("3. Start phone verifier server")
-    print("4. Exit")
+    print("2. Verify QR image")
+    print("3. Start QR verifier server (No function)")
+    print("3. Exit")
 
 
 def main():
-    show_menu()
+    while True:
+        print()
+        show_menu()
+        choice = input("Choose an option: ").strip()
+
+        if choice == "1":
+            id_lookup()
+        elif choice == "2":
+            verify_qr_image()
+        elif choice == "3":
+            print("To add. Please launch 'verify_app.py'.")    
+        elif choice == "4":
+            print("Exiting program.")
+            return
+        else:
+            print("Invalid option. Please choose 1, 2, or 3.")
     
 
 # launch program
