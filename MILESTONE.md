@@ -75,3 +75,4 @@ Also check FEEDBACK_TESTS.md for any additional information
 - [ ] Build a native Android QR verifier. ([#12](https://github.com/nutuxedo/DigitalIDSystem/issues/12))
 - [ ] Simplify the directory (looks too messy)
 - [ ] Package the project into an executable
+- [ ] Audience integration (like an event ticket)
