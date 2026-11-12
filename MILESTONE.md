@@ -36,7 +36,7 @@
 - [x] Displayed clear results.
 - [x] Tested valid, changed, expired, and revoked QR codes.
 
-## Milestone 5: Event-ready bouncer verification
+## [MERGED] Milestone 5: Event-ready bouncer verification
 
 **This milestone is now able to use for the event on Nov 20, if Milestone 6 not finished.**
 
@@ -55,7 +55,7 @@ verifier, and a phone or tablet scans QR codes through its browser.
 - [x] Test the event workflow.
 - [x] Prepare a laptop backup method.
 
-## Milestone 6 [Refer to GitHub issues]: Cleanups
+## [ONGOING] Milestone 6 [Refer to GitHub issues]: Cleanups
 
 Planned before or after the November 20 event:
 Also check FEEDBACK_TESTS.md for any additional information
@@ -68,6 +68,10 @@ Also check FEEDBACK_TESTS.md for any additional information
 - [x] Handle malformed QR data safely. ([#6](https://github.com/nutuxedo/DigitalIDSystem/issues/6))
 - [ ] Store less personal information in QR codes. ([#11](https://github.com/nutuxedo/DigitalIDSystem/issues/11))
 - [x] Detect public/private key mismatches. ([#8](https://github.com/nutuxedo/DigitalIDSystem/issues/8))
-- [ ] Build a native Android QR verifier. ([#12](https://github.com/nutuxedo/DigitalIDSystem/issues/12))
 - [ ] Redo the README.
+
+## Milestone 7: Major future changes (low prio)
+
+- [ ] Build a native Android QR verifier. ([#12](https://github.com/nutuxedo/DigitalIDSystem/issues/12))
 - [ ] Simplify the directory (looks too messy)
+- [ ] Package the project into an executable
