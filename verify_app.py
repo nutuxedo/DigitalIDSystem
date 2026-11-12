@@ -130,6 +130,7 @@ def home():
 # verify scanned QR data
 @verify_app.post("/verify")
 def verify():
+    # Validate a scanned QR payload and return a browser-friendly result.
     # Read the JSON request sent by the browser.
     body = request.get_json(silent=True)
     if not isinstance(body, dict) or not isinstance(body.get("qr_data"), str):
@@ -151,6 +152,7 @@ def verify():
             ), 400
 
         details = {
+            # Return safe display fields without exposing the signature.
             field: payload[field]
             for field in (
                 "id",
@@ -181,6 +183,7 @@ def verify():
             ), 400
 
         try:
+            # Compare the signed record with the current Google Sheets record.
             current_records = load_id_lists()
         except RuntimeError as error:
             return jsonify(
@@ -206,6 +209,7 @@ def verify():
         details["status"] = current_status
 
         if current_status != signed_status:
+            # Reject QR codes whose status has changed since they were issued.
             return jsonify(
                 accepted=False,
                 message="QR code status does not match the current registry.",
@@ -213,6 +217,7 @@ def verify():
             ), 400
 
         if current_status != "approved":
+            # Current records must still be approved at verification time.
             messages = {
                 "pending": "ID is pending approval.",
                 "revoked": "ID has been revoked.",
@@ -240,6 +245,7 @@ def verify():
 
 @verify_app.get("/html5-qrcode.min.js")
 def scanner_library():
+    # Serve the local QR scanner library to the verification page.
     return send_from_directory(
         Path(__file__).parent / "static",
         "html5-qrcode.min.js",

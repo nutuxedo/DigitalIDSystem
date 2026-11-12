@@ -69,6 +69,7 @@ Also check FEEDBACK_TESTS.md for any additional information
 - [ ] Store less personal information in QR codes. ([#11](https://github.com/nutuxedo/DigitalIDSystem/issues/11))
 - [x] Detect public/private key mismatches. ([#8](https://github.com/nutuxedo/DigitalIDSystem/issues/8))
 - [ ] Redo the README.
+- [ ] Cleanup the COLUMN_ALIASES at sheets.py
 
 ## Milestone 7: Major future changes (low prio)
 
