@@ -1,9 +1,20 @@
+<!-- markdownlint-disable MD033 MD041 -->
+<div align="center">
+
 # Digital ID System
 
-A Python CLI digital ID platform for issuing and verifying event credentials.
+<h3>
+  A Python CLI digital ID platform for issuing and verifying event credentials.
+</h3>
+</div>
+<!-- markdownlint-enable MD033 MD041 -->
 
-> [!NOTE] NOTE
+> [!NOTE]
 > This is a working prototype, changes in development will occur rapidly and may not reflect the final system.
+
+## AI Disclaimer
+
+> This project is AI-assisted (GitHub Copilot). All AI-assisted changes are reviewed, tested, and commited by me in final.
 
 ## Features
 
@@ -73,7 +84,7 @@ python -m pip install -r requirements.txt
 
 ### Google Sheets (via Google Cloud/OAuth)
 
-> [!NOTE] NOTE
+> [!IMPORTANT]
 > Make sure you have a Google Cloud account available, this will not incur any credits or payments for using the OAuth session.
 
 Lorem ipsum
