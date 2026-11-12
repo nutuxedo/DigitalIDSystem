@@ -90,6 +90,7 @@ def load_id_lists():
 
     try:
         import gspread
+        from google.auth.exceptions import RefreshError
         from google.auth.transport.requests import Request
         from google.oauth2.credentials import Credentials
         from google_auth_oauthlib.flow import InstalledAppFlow
@@ -108,7 +109,17 @@ def load_id_lists():
 
     if credentials is None or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
-            credentials.refresh(Request())
+            try:
+                credentials.refresh(Request())
+            except RefreshError:
+                # The saved token can no longer be refreshed, so require a new login.
+                print("token.json is expired or revoked. Please sign in again.")
+                oauth_token_file.unlink(missing_ok=True)
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    oauth_client_file,
+                    SCOPES,
+                )
+                credentials = flow.run_local_server(port=0)
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 oauth_client_file,
