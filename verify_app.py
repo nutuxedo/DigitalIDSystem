@@ -11,10 +11,13 @@ from pathlib import Path
 # Flask creates the web app and handles browser requests.
 from flask import Flask, jsonify, request, send_from_directory
 
+from sheets import load_id_lists
+
 # Reuse the same verification checks as the command-line verifier.
 from verify_qr import check_expiry, load_public_key, verify_payload
 
 verify_app = Flask(__name__)
+verify_app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
 
 
 # home page
@@ -26,6 +29,7 @@ def home():
     <p>Scan an event QR code to verify it.</p>
     <button onclick="startScan()">Scan QR</button>
     <h2 id="result"></h2>
+    <div id="details"></div>
 
     <script src="/html5-qrcode.min.js"></script>
     <div id="reader"></div>
@@ -69,8 +73,10 @@ def home():
 
     async function verifyQr(decodedText) {
         const result = document.getElementById("result");
+        const details = document.getElementById("details");
         result.textContent = "Checking...";
         result.style.color = "black";
+        details.replaceChildren();
 
         try {
             // Send the QR data to the /verify Flask endpoint.
@@ -82,6 +88,35 @@ def home():
             const data = await response.json();
             result.textContent = data.message;
             result.style.color = data.accepted ? "green" : "red";
+
+            if (data.details) {
+                const heading = document.createElement("h3");
+                heading.textContent = "ID details";
+                details.appendChild(heading);
+
+                const labels = {
+                    id: "ID",
+                    firstname: "First name",
+                    lastname: "Last name",
+                    role: "Role",
+                    bandname: "Band",
+                    event: "Event",
+                    expiry: "Expiry date",
+                    status: "Status"
+                };
+                const list = document.createElement("dl");
+                for (const [key, label] of Object.entries(labels)) {
+                    if (data.details[key] === undefined) {
+                        continue;
+                    }
+                    const term = document.createElement("dt");
+                    term.textContent = label;
+                    const value = document.createElement("dd");
+                    value.textContent = String(data.details[key]);
+                    list.append(term, value);
+                }
+                details.appendChild(list);
+            }
         } catch (error) {
             // Show an error if the browser cannot contact Flask.
             result.textContent = "Verification service unavailable.";
@@ -95,6 +130,7 @@ def home():
 # verify scanned QR data
 @verify_app.post("/verify")
 def verify():
+    # Validate a scanned QR payload and return a browser-friendly result.
     # Read the JSON request sent by the browser.
     body = request.get_json(silent=True)
     if not isinstance(body, dict) or not isinstance(body.get("qr_data"), str):
@@ -106,7 +142,7 @@ def verify():
         if not isinstance(payload, dict):
             raise TypeError("QR data must be a JSON object.")
 
-        # Check the signature, expiry date, and approval status.
+        # Check the signature and expiry date before consulting live status.
         public_key = load_public_key()
 
         if not verify_payload(payload, public_key):
@@ -115,15 +151,73 @@ def verify():
                 message="QR code is invalid or has been tampered with.",
             ), 400
 
+        details = {
+            # Return safe display fields without exposing the signature.
+            field: payload[field]
+            for field in (
+                "id",
+                "firstname",
+                "lastname",
+                "role",
+                "bandname",
+                "event",
+                "expiry",
+                "status",
+            )
+            if field in payload
+        }
+
         if not check_expiry(payload):
             return jsonify(
                 accepted=False,
                 message="QR code has expired.",
+                details=details,
             ), 400
 
-        status = str(payload.get("status", "")).strip().lower()
+        id_number = payload.get("id")
+        if not isinstance(id_number, str) or not id_number.strip():
+            return jsonify(
+                accepted=False,
+                message="QR code is missing a valid ID number.",
+                details=details,
+            ), 400
 
-        if status != "approved":
+        try:
+            # Compare the signed record with the current Google Sheets record.
+            current_records = load_id_lists()
+        except RuntimeError as error:
+            return jsonify(
+                accepted=False,
+                message=f"Unable to check current ID status: {error}",
+            ), 503
+
+        current_record = current_records.get(id_number.strip())
+        if current_record is None:
+            return jsonify(
+                accepted=False,
+                message="ID was not found in the current registry.",
+                details=details,
+            ), 400
+
+        current_status = current_record.get("status", "").strip().lower()
+        signed_status = payload.get("status")
+        signed_status = (
+            signed_status.strip().lower()
+            if isinstance(signed_status, str)
+            else ""
+        )
+        details["status"] = current_status
+
+        if current_status != signed_status:
+            # Reject QR codes whose status has changed since they were issued.
+            return jsonify(
+                accepted=False,
+                message="QR code status does not match the current registry.",
+                details=details,
+            ), 400
+
+        if current_status != "approved":
+            # Current records must still be approved at verification time.
             messages = {
                 "pending": "ID is pending approval.",
                 "revoked": "ID has been revoked.",
@@ -132,7 +226,8 @@ def verify():
             }
             return jsonify(
                 accepted=False,
-                message=messages.get(status, "ID is not approved."),
+                message=messages.get(current_status, "ID is not approved."),
+                details=details,
             ), 400
 
     except (OSError, TypeError, ValueError, KeyError) as error:
@@ -144,11 +239,13 @@ def verify():
     return jsonify(
         accepted=True,
         message="ID verified and approved.",
+        details=details,
     )
 
 
 @verify_app.get("/html5-qrcode.min.js")
 def scanner_library():
+    # Serve the local QR scanner library to the verification page.
     return send_from_directory(
         Path(__file__).parent / "static",
         "html5-qrcode.min.js",

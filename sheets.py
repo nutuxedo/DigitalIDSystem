@@ -1,3 +1,5 @@
+# Google Sheets lookup functionality
+
 import os
 from pathlib import Path
 
@@ -6,41 +8,70 @@ DEFAULT_OAUTH_TOKEN_FILE = "token.json"
 DEFAULT_WORKSHEET_NAME = "Form Responses 1"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
-# These aliases make the code work with common Google Form question wording.
+# Each key is the field name used by the program.
+# Its aliases are accepted as Google Sheets column headers.
 COLUMN_ALIASES = {
-    "id": {"id", "id number", "id_number", "idnumber"},
+    "id": {
+        "id",
+        "id number",
+        "id_number",
+        "idnumber",
+    },
     "lastname": {
-        "last name", 
-        "lastname", 
+        "last name",
+        "lastname",
         "surname",
-        "full name (lastname, firstname)"},
+    },
     "firstname": {
-        "first name", 
-        "firstname", 
+        "first name",
+        "firstname",
         "given name",
-        "full name (lastname, firstname)"},
-    "role": {"role", "roles", "position"},
-    "subrole": {"sub-role", "subrole"},
-    "headshot":{
+    },
+    "role": {
+        "role",
+        "roles",
+        "position",
+    },
+    "subrole": {
+        "sub-role",
+        "subrole",
+    },
+    "headshot": {
         "headshot picture",
         "headshot",
-        "please upload your face (headshot)"},
+        "please upload your face (headshot)",
+    },
     "bandname": {
-        "band", 
-        "band name", 
+        "band",
+        "band name",
         "bandname",
-        "name of band/artist"},
-    "status": {"status", "approval status", "id status"},
-    "timestamp": {"timestamp", "time", "date and time"},
-    "email": {"email address", "email", "email add"},
+        "name of band/artist",
+    },
+    "status": {
+        "status",
+        "approval status",
+        "id status",
+    },
+    "timestamp": {
+        "timestamp",
+        "time",
+        "date and time",
+    },
+    "email": {
+        "email address",
+        "email",
+        "email add",
+    },
 }
 
 
 def _normalize_column_name(column_name):
+    # Make headers easier to compare by ignoring case, spacing, and underscores.
     return " ".join(str(column_name).strip().lower().replace("_", " ").split())
 
 
 def _find_columns(headers):
+    # Match each required field to the header used in the worksheet.
     normalized_headers = {
         _normalize_column_name(header): header for header in headers
     }
@@ -67,6 +98,7 @@ def _find_columns(headers):
 
 def load_id_lists():
     """Read ID records from the Google Form response worksheet."""
+    # Allow deployment-specific files and worksheet names through environment variables.
     oauth_client_file = Path(
         os.getenv("GOOGLE_OAUTH_CLIENT_FILE", DEFAULT_OAUTH_CLIENT_FILE)
     )
@@ -88,6 +120,7 @@ def load_id_lists():
             "in the Google Sheet URL."
         )
 
+    # Import Google libraries only when this feature is used.
     try:
         import gspread
         from google.auth.exceptions import RefreshError
@@ -101,6 +134,7 @@ def load_id_lists():
         ) from error
 
     credentials = None
+    # Reuse the saved token when possible to avoid signing in every time.
     if oauth_token_file.is_file():
         credentials = Credentials.from_authorized_user_file(
             oauth_token_file,
@@ -110,6 +144,7 @@ def load_id_lists():
     if credentials is None or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
             try:
+                # Refresh an expired token before asking the user to sign in again.
                 credentials.refresh(Request())
             except RefreshError:
                 # The saved token can no longer be refreshed, so require a new login.
@@ -121,16 +156,19 @@ def load_id_lists():
                 )
                 credentials = flow.run_local_server(port=0)
         else:
+            # Start the browser-based OAuth flow when no usable token exists.
             flow = InstalledAppFlow.from_client_secrets_file(
                 oauth_client_file,
                 SCOPES,
             )
             credentials = flow.run_local_server(port=0)
+        # Save the new or refreshed token for the next run.
         oauth_token_file.write_text(credentials.to_json(), encoding="utf-8")
 
     client = gspread.authorize(credentials)
 
     try:
+        # Read all worksheet rows so IDs can be checked locally.
         worksheet = client.open_by_key(spreadsheet_id).worksheet(worksheet_name)
         rows = worksheet.get_all_records()
     except gspread.exceptions.GSpreadException as error:
@@ -140,19 +178,24 @@ def load_id_lists():
         ) from error
 
     if not rows:
+        # An empty worksheet has no IDs to look up.
         return {}
 
+    # Use the first row to map flexible headers to the program's field names.
     columns = _find_columns(rows[0].keys())
     id_lists = {}
     for row_number, row in enumerate(rows, start=2):
         id_number = str(row[columns["id"]]).strip()
         if not id_number:
+            # Ignore blank rows or records without an ID.
             continue
         if id_number in id_lists:
+            # Duplicate IDs would make the lookup result ambiguous.
             raise RuntimeError(
                 f"Duplicate ID '{id_number}' found on worksheet row {row_number}."
             )
 
+        # Store each record under its ID for fast lookup by the CLI.
         id_lists[id_number] = {
             field: str(row[header]).strip()
             for field, header in columns.items()

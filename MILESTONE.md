@@ -36,7 +36,9 @@
 - [x] Displayed clear results.
 - [x] Tested valid, changed, expired, and revoked QR codes.
 
-## Milestone 5: Event-ready bouncer verification (Target: November 20)
+## [MERGED] Milestone 5: Event-ready bouncer verification
+
+**This milestone is now able to use for the event on Nov 20, if Milestone 6 not finished.**
 
 Goal: a reliable prototype for event use. A laptop runs the local Flask
 verifier, and a phone or tablet scans QR codes through its browser.
@@ -53,19 +55,31 @@ verifier, and a phone or tablet scans QR codes through its browser.
 - [x] Test the event workflow.
 - [x] Prepare a laptop backup method.
 
-## To-do after Milestone 5 [Refer to GitHub issues]
+## [ONGOING] Milestone 6 [Refer to GitHub issues]: Cleanups
+
+Track this milestone on the [Kanban board](https://github.com/users/nutuxedo/projects/6/views/1?system_template=kanban).
 
 Planned before or after the November 20 event:
-Also check FEEDBACK_TESTS.md for any additional information
+Also check [FEEDBACK_TESTS.md](./FEEDBACK_TESTS.md) for additional information.
 
 - [x] Add one CLI menu for ID lookup/QR generation and QR-image verification. ([#10](https://github.com/nutuxedo/DigitalIDSystem/issues/10))
-- [ ] Integrate the Flask phone verifier into the CLI menu.
-- [ ] Show ID details in the verifier app. [MUST] ([#9](https://github.com/nutuxedo/DigitalIDSystem/issues/9))
-- [ ] Protect the private signing key. ([#5](https://github.com/nutuxedo/DigitalIDSystem/issues/5))
-- [ ] Check current revocation status. ([#7](https://github.com/nutuxedo/DigitalIDSystem/issues/7))
-- [ ] Handle malformed QR data safely. ([#6](https://github.com/nutuxedo/DigitalIDSystem/issues/6))
+- [ ] Integrate the Flask phone verifier into the CLI menu. ([#15](https://github.com/nutuxedo/DigitalIDSystem/issues/15))
+- [x] Show ID details in the verifier app. [MUST] ([#9](https://github.com/nutuxedo/DigitalIDSystem/issues/9))
+- [x] Protect the private signing key. ([#5](https://github.com/nutuxedo/DigitalIDSystem/issues/5))
+- [x] Check current revocation status. ([#7](https://github.com/nutuxedo/DigitalIDSystem/issues/7))
+- [x] Handle malformed QR data safely. ([#6](https://github.com/nutuxedo/DigitalIDSystem/issues/6))
 - [ ] Store less personal information in QR codes. ([#11](https://github.com/nutuxedo/DigitalIDSystem/issues/11))
-- [ ] Detect public/private key mismatches. ([#8](https://github.com/nutuxedo/DigitalIDSystem/issues/8))
+- [x] Detect public/private key mismatches. ([#8](https://github.com/nutuxedo/DigitalIDSystem/issues/8))
+- [ ] Redo the README. ([#13](https://github.com/nutuxedo/DigitalIDSystem/issues/13))
+- [ ] Cleanup the COLUMN_ALIASES at sheets.py. ([#18](https://github.com/nutuxedo/DigitalIDSystem/issues/18))
+- [ ] Address public testing feedback from [FEEDBACK_TESTS.md](./FEEDBACK_TESTS.md). ([#19](https://github.com/nutuxedo/DigitalIDSystem/issues/19))
+
+## Milestone 7: Major future changes (low prio)
+
+Track this milestone on the [Kanban board](https://github.com/users/nutuxedo/projects/6/views/1?system_template=kanban).
+
 - [ ] Build a native Android QR verifier. ([#12](https://github.com/nutuxedo/DigitalIDSystem/issues/12))
-- [ ] Redo the README.
-- [ ] Simplify the directory (looks too messy)
+- [ ] Simplify the directory (looks too messy). ([#21](https://github.com/nutuxedo/DigitalIDSystem/issues/21))
+- [ ] Package the project into an executable. ([#22](https://github.com/nutuxedo/DigitalIDSystem/issues/22))
+- [ ] Audience integration (like an event ticket). ([#23](https://github.com/nutuxedo/DigitalIDSystem/issues/23))
+- [ ] **Very low priority:** Choose a final software name from [SOFTWARE_NAME_IDEAS.md](./SOFTWARE_NAME_IDEAS.md). ([#20](https://github.com/nutuxedo/DigitalIDSystem/issues/20))
