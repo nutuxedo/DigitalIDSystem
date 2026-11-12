@@ -12,4 +12,8 @@ Areas needed for IMPROVEMENT:
 - Consolidate the main.py as a menu screen for various functions
 - I know this may be complicated but QR should read the Google Sheets if still valid? very complicated but for now the bouncer would have a google sheet onhand aswell for double check
 
-Next test possibly end of this week (Nov 13-15)
+Next test on November 20 (Music gig event) - Massive public testing
+
+## November 20, 2026 - Test 2 [version TBD]
+
+(Add feedback here after the test has finished.)
