@@ -1,8 +1,10 @@
+# CLI menu and other stuff
+# 
+
 import qr_generator
 from sheets import load_id_lists
 
 
-# main code
 def get_expiry_date():
     while True:
         expiry_date = input("Enter expiry date (YYYY-MM-DD): ").strip()
