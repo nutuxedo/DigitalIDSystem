@@ -1,6 +1,8 @@
 import base64
 import json
+import os
 import re
+import stat
 from pathlib import Path
 
 import qrcode
@@ -13,42 +15,80 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 PUBLIC_KEY_FILE = Path("signing_public_key.pem")
 PRIVATE_KEY_FILE = Path("signing_private_key.pem")
 
+
 def save_public_key(public_key):
-    if not PUBLIC_KEY_FILE.exists():
-        PUBLIC_KEY_FILE.write_bytes(
-            public_key.public_bytes(
-                encoding=serialization.Encoding.PEM,
+    expected_key = public_key.public_bytes(
+        encoding=serialization.Encoding.DER,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    if PUBLIC_KEY_FILE.exists():
+        try:
+            stored_public_key = serialization.load_pem_public_key(
+                PUBLIC_KEY_FILE.read_bytes()
+            )
+            stored_key = stored_public_key.public_bytes(
+                encoding=serialization.Encoding.DER,
                 format=serialization.PublicFormat.SubjectPublicKeyInfo,
             )
+        except (OSError, ValueError, TypeError) as error:
+            raise RuntimeError(
+                f"Could not load public key '{PUBLIC_KEY_FILE}'."
+            ) from error
+
+        if stored_key != expected_key:
+            raise RuntimeError(
+                "Public/private signing keys do not match. Restore the matching "
+                "public key or replace the private key intentionally."
+            )
+        return
+
+    PUBLIC_KEY_FILE.write_bytes(
+        public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
         )
+    )
+
 
 def load_or_create_private_key():
     if PRIVATE_KEY_FILE.exists():
+        permissions = PRIVATE_KEY_FILE.stat().st_mode
+        if permissions & (stat.S_IRWXG | stat.S_IRWXO):
+            raise RuntimeError(
+                f"Private signing key '{PRIVATE_KEY_FILE}' is accessible by "
+                "group or other users. Restrict it to the owner before use."
+            )
         return serialization.load_pem_private_key(
             PRIVATE_KEY_FILE.read_bytes(),
             password=None,
         )
 
     private_key = Ed25519PrivateKey.generate()
-    
-    PRIVATE_KEY_FILE.write_bytes(
-        private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption(),
-        )
+    private_key_bytes = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
     )
-    
+    file_descriptor = os.open(
+        PRIVATE_KEY_FILE,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+        stat.S_IRUSR | stat.S_IWUSR,
+    )
+    with os.fdopen(file_descriptor, "wb") as key_file:
+        key_file.write(private_key_bytes)
+
     print(f"Created signing key: {PRIVATE_KEY_FILE}")
     return private_key
+
 
 private_key = load_or_create_private_key()
 public_key = private_key.public_key()
 save_public_key(public_key)
 
-# digital signature section
+
 def sign_message(message, private_key):
     return private_key.sign(message)
+
 
 def verify_payload(payload):
     signature_text = payload.pop("signature", None)
@@ -58,7 +98,7 @@ def verify_payload(payload):
         return False
 
     try:
-        signature = base64.b64decode(signature_text)
+        signature = base64.b64decode(signature_text, validate=True)
 
         message = json.dumps(
             payload,
@@ -67,7 +107,7 @@ def verify_payload(payload):
         ).encode("utf-8")
 
         public_key.verify(signature, message)
-    except (InvalidSignature, ValueError):
+    except (InvalidSignature, TypeError, ValueError):
         print("ERROR: QR data was changed or is invalid.")
         return False
 
@@ -75,7 +115,6 @@ def verify_payload(payload):
     return True
 
 
-# main qr generation
 def qr_generation(id_number, person, event_name, expiry_date):
     payload = {
         "id": id_number,
@@ -85,19 +124,18 @@ def qr_generation(id_number, person, event_name, expiry_date):
         "bandname": person["bandname"],
         "status": person["status"],
         "event": event_name,
-        "expiry": expiry_date
+        "expiry": expiry_date,
     }
-    
+
     message = json.dumps(
         payload,
         sort_keys=True,
         separators=(",", ":"),
     ).encode("utf-8")
-    
+
     signature = sign_message(message, private_key)
-    
     payload["signature"] = base64.b64encode(signature).decode("ascii")
-    
+
     safe_id = re.sub(r"[^A-Za-z0-9_-]+", "_", id_number).strip("_")
     output_folder = Path("generated_qr_images")
     output_folder.mkdir(parents=True, exist_ok=True)
@@ -105,8 +143,8 @@ def qr_generation(id_number, person, event_name, expiry_date):
     image = qrcode.make(json.dumps(payload, separators=(",", ":")))
     image.save(output_file)
     return output_file
-    
-# asks for QR generation
+
+
 def qr_inquiry(id_number, person, event_name, expiry_date):
     while True:
         answer = input("Generate QR code? (Y/n) ").strip().lower()
@@ -119,4 +157,3 @@ def qr_inquiry(id_number, person, event_name, expiry_date):
             print("QR not generated\n")
             break
         print("Please enter Y or N.")
-        

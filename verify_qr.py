@@ -1,4 +1,5 @@
-# qr verification
+# QR Verification-offline based
+# For phone server QR scanner, head to verify_app.py
 
 import base64
 import importlib
@@ -19,7 +20,11 @@ except ModuleNotFoundError as error:
 PUBLIC_KEY_FILE = "signing_public_key.pem"
 
 def check_expiry(payload):
-    expiry_date = date.fromisoformat(payload["expiry"])
+    expiry = payload.get("expiry")
+    if not isinstance(expiry, str):
+        raise ValueError("QR expiry date is missing or invalid.")
+
+    expiry_date = date.fromisoformat(expiry)
     
     if expiry_date < date.today():
         print("Error: QR is EXPIRED.")
@@ -29,7 +34,8 @@ def check_expiry(payload):
     return True
 
 def check_status(payload):
-    status = payload.get("status", "").strip().lower()
+    status_value = payload.get("status")
+    status = status_value.strip().lower() if isinstance(status_value, str) else ""
 
     if status != "approved":
         print(f"Error: ID status is {status or 'missing'}.")
@@ -58,10 +64,13 @@ def decode_qr_image(image_path):
         raise RuntimeError("QR data is not valid JSON.") from error
 
 def verify_payload(payload, public_key):
+    if not isinstance(payload, dict):
+        raise TypeError("QR payload must be a JSON object.")
+
     signature_text = payload.pop("signature", None)
     
-    if signature_text is None:
-        print("Error: QR has no signature.")
+    if not isinstance(signature_text, str):
+        print("Error: QR has no valid signature.")
         return False
     
     try:
@@ -74,7 +83,7 @@ def verify_payload(payload, public_key):
         ).encode("utf-8")
         
         public_key.verify(signature, message)
-    except (InvalidSignature, ValueError):
+    except (InvalidSignature, TypeError, ValueError):
         print("Error: QR data has been TAMPERED.")
         return False
     
