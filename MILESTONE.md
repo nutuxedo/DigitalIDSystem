@@ -73,6 +73,7 @@ Also check [FEEDBACK_TESTS.md](./FEEDBACK_TESTS.md) for additional information.
 - [ ] Redo the README. ([#13](https://github.com/nutuxedo/DigitalIDSystem/issues/13))
 - [ ] Cleanup the COLUMN_ALIASES at sheets.py. ([#18](https://github.com/nutuxedo/DigitalIDSystem/issues/18))
 - [ ] Address public testing feedback from [FEEDBACK_TESTS.md](./FEEDBACK_TESTS.md). ([#19](https://github.com/nutuxedo/DigitalIDSystem/issues/19))
+- [ ] Start implementing automated tests with `pytest` [#17](https://github.com/nutuxedo/DigitalIDSystem/issues/17)
 
 ## Milestone 7: Major future changes (low prio)
 
