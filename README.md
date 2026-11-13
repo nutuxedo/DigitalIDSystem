@@ -12,9 +12,9 @@
 > [!NOTE]
 > This is a working prototype, changes in development will occur rapidly and may not reflect the final system.
 
-## AI Disclaimer
+## Ethical Disclaimer
 
-> This project is AI-assisted (GitHub Copilot). All AI-assisted changes are reviewed, tested, and commited by me in final.
+> This project is approximately 50% AI-assisted using GitHub Copilot. The developer directed the design, reviewed the output, tested the system, and made the final changes.
 
 ## Features
 
