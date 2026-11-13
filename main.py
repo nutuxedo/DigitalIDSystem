@@ -4,6 +4,17 @@
 import qr_generator
 from sheets import load_id_lists
 
+exit_typos = {
+    "exis", 
+    "exix", 
+    "exid", 
+    "exir", 
+    "exitt", 
+    "wxit", 
+    "rxit", 
+    "dxit", 
+    "efit"
+    }
 
 def get_expiry_date():
     # Keep asking until the user provides an expiry date.
@@ -25,17 +36,7 @@ def get_event_name():
             print("Returning to menu...")
             main()
         
-        if event_name.lower() in (
-            "exis", 
-            "exix", 
-            "exid", 
-            "exir", 
-            "exitt", 
-            "wxit", 
-            "rxit", 
-            "dxit", 
-            "efit"
-        ):
+        if event_name.lower() in exit_typos:
             print("Did you mean 'exit'?")
             continue
 
