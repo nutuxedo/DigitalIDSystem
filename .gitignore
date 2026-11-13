@@ -9,6 +9,7 @@ token.json
 .ruff_cache/
 generated_qr_images/*.png
 signing_private_key.pem
+AGENTS.md
 
 # Experimental folder (kept to myself)
 experiments/
