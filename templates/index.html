@@ -1,0 +1,24 @@
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <h1>DigitalIDSystem verifier</h1>
+    <p>(working prototype)</p>
+    <div id="sheets-status">Google Sheets: checking...</div>
+    <button id="scan-button" onclick="startScan()">Scan QR</button>
+    <h2 id="result"></h2>
+    <script src="/html5-qrcode.min.js"></script>
+    <div id="reader"></div>
+
+    <div id="details">
+        <h3>ID details</h3>
+        <dl>
+            <dt>ID</dt><dd id="detail-id">—</dd>
+            <dt>First name</dt><dd id="detail-firstname">—</dd>
+            <dt>Last name</dt><dd id="detail-lastname">—</dd>
+            <dt>Role</dt><dd id="detail-role">—</dd>
+            <dt>Band</dt><dd id="detail-bandname">—</dd>
+            <dt>Event</dt><dd id="detail-event">—</dd>
+            <dt>Expiry date</dt><dd id="detail-expiry">—</dd>
+            <dt>Status</dt><dd id="detail-status">—</dd>
+        </dl>
+    </div>
+    <script src="{{ url_for('static', filename='verifier.js') }}"></script>
