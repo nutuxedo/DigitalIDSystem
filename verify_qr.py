@@ -23,7 +23,7 @@ def check_expiry(payload):
     # A QR code remains valid through its expiry date.
     expiry = payload.get("expiry")
     if not isinstance(expiry, str):
-        raise ValueError("QR expiry date is missing or invalid.")
+        raise TypeError("QR expiry date is missing or invalid.") 
 
     expiry_date = date.fromisoformat(expiry)
     

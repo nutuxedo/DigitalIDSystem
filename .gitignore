@@ -6,6 +6,7 @@ __pycache__/
 credentials.json
 oauth_client.json
 token.json
+event_config.json
 .ruff_cache/
 generated_qr_images/*.png
 signing_private_key.pem
