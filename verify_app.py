@@ -1,4 +1,5 @@
 # Flask web app for QR verification
+# This code is heavily AI-assisted with GitHub Copilot
 # Prototype only- final app might be native development (Kotlin/Java)
 # Run with: .venv/bin/python verify_app.py
 # Then open: https://127.0.0.1:5000 (current device)
@@ -25,19 +26,167 @@ verify_app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
 def home():
     # This page opens the phone camera and reads QR codes.
     return """
-    <h1>Bouncer Verifier</h1>
-    <p>Scan an event QR code to verify it.</p>
-    <button onclick="startScan()">Scan QR</button>
-    <h2 id="result"></h2>
-    <div id="details"></div>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
+        body {
+            margin: 0;
+            padding: 1.5rem;
+            font-family: system-ui, sans-serif;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        button {
+            width: 100%;
+            min-height: 3.25rem;
+            padding: 0.75rem 1rem;
+            border: 0;
+            border-radius: 0.5rem;
+            background: #aa1717;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 32rem;
+            margin-top: 1rem;
+        }
+
+        #result {
+            overflow-wrap: anywhere;
+        }
+
+        #details {
+            max-width: 32rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 0.75rem;
+            background: #f7f7f7;
+        }
+
+        #details h3 {
+            margin-top: 0;
+        }
+
+        #details dl {
+            display: grid;
+            grid-template-columns: minmax(7rem, 0.8fr) 1.2fr;
+            gap: 0.5rem 1rem;
+            margin: 0;
+        }
+
+        #details dt {
+            font-weight: 600;
+        }
+
+        #details dd {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        #sheets-status {
+            display: inline-block;
+            margin: 0.75rem 0;
+            padding: 0.35rem 0.65rem;
+            border-radius: 999px;
+            background: #666;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 600px) {
+            body {
+                max-width: 42rem;
+                margin: 0 auto;
+            }
+
+            button {
+                width: auto;
+                min-width: 12rem;
+            }
+        }
+    </style>
+    <h1>DigitalIDSystem verifier</h1>
+    <p>(working prototype)</p>
+    <div id="sheets-status">Google Sheets: checking...</div>
+    <button id="scan-button" onclick="startScan()">Scan QR</button>
+    <h2 id="result"></h2>
     <script src="/html5-qrcode.min.js"></script>
     <div id="reader"></div>
 
+    <div id="details">
+        <h3>ID details</h3>
+        <dl>
+            <dt>ID</dt><dd id="detail-id">—</dd>
+            <dt>First name</dt><dd id="detail-firstname">—</dd>
+            <dt>Last name</dt><dd id="detail-lastname">—</dd>
+            <dt>Role</dt><dd id="detail-role">—</dd>
+            <dt>Band</dt><dd id="detail-bandname">—</dd>
+            <dt>Event</dt><dd id="detail-event">—</dd>
+            <dt>Expiry date</dt><dd id="detail-expiry">—</dd>
+            <dt>Status</dt><dd id="detail-status">—</dd>
+        </dl>
+    </div>
+
     <script>
     let scanner;
+    let scanInProgress = false;
+    let verificationInProgress = false;
+    const detailFields = [
+        "id",
+        "firstname",
+        "lastname",
+        "role",
+        "bandname",
+        "event",
+        "expiry",
+        "status"
+    ];
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            return await fetch(url, { ...options, signal: controller.signal });
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
+
+    async function checkSheetsStatus() {
+        const status = document.getElementById("sheets-status");
+
+        try {
+            const response = await fetchWithTimeout("/status");
+            const data = await response.json();
+            status.textContent = data.connected
+                ? "Google Sheets: connected"
+                : "Google Sheets: unavailable";
+            status.style.backgroundColor = data.connected ? "green" : "red";
+        } catch (error) {
+            status.textContent = "Google Sheets: unavailable";
+            status.style.backgroundColor = "red";
+        }
+    }
 
     async function startScan() {
+        if (scanInProgress) {
+            return;
+        }
+
+        scanInProgress = true;
+        const scanButton = document.getElementById("scan-button");
+        scanButton.disabled = true;
+        scanButton.textContent = "Scanning...";
         scanner = new Html5Qrcode("reader");
 
         try {
@@ -54,12 +203,30 @@ def home():
                 || cameras.find(c => /back|rear|environment/i.test(c.label))
                 || cameras[0];
 
+            const qrSize = Math.min(220, Math.max(140, window.innerWidth - 96));
             await scanner.start(
                 camera.id,
-                { fps: 10, qrbox: { width: 450, height: 450 } },
+                { fps: 10, qrbox: { width: qrSize, height: qrSize } },
                 async decodedText => {
-                    await verifyQr(decodedText);
-                    await scanner.stop();
+                    if (!scanInProgress || verificationInProgress) {
+                        return;
+                    }
+
+                    verificationInProgress = true;
+                    try {
+                        await scanner.stop();
+                    } catch (error) {
+                        console.error("Could not stop camera:", error);
+                    }
+
+                    try {
+                        await verifyQr(decodedText);
+                    } finally {
+                        verificationInProgress = false;
+                        scanInProgress = false;
+                        scanButton.disabled = false;
+                        scanButton.textContent = "Scan QR";
+                    }
                 },
                 () => {}
             );
@@ -68,63 +235,64 @@ def home():
 
             document.getElementById("result").textContent =
                 "Camera error: " + String(error);
+            scanInProgress = false;
+            verificationInProgress = false;
+            scanButton.disabled = false;
+            scanButton.textContent = "Scan QR";
         }
     }
 
+    checkSheetsStatus();
+
     async function verifyQr(decodedText) {
         const result = document.getElementById("result");
-        const details = document.getElementById("details");
         result.textContent = "Checking...";
         result.style.color = "black";
-        details.replaceChildren();
+        for (const field of detailFields) {
+            document.getElementById(`detail-${field}`).textContent = "—";
+        }
 
         try {
             // Send the QR data to the /verify Flask endpoint.
-            const response = await fetch("/verify", {
+            const response = await fetchWithTimeout("/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ qr_data: decodedText })
             });
             const data = await response.json();
             result.textContent = data.message;
-            result.style.color = data.accepted ? "green" : "red";
+            const status = String(data.details?.status || "").toLowerCase();
+            result.style.color = data.accepted
+                ? "green"
+                : status === "pending"
+                    ? "orange"
+                    : "red";
 
             if (data.details) {
-                const heading = document.createElement("h3");
-                heading.textContent = "ID details";
-                details.appendChild(heading);
-
-                const labels = {
-                    id: "ID",
-                    firstname: "First name",
-                    lastname: "Last name",
-                    role: "Role",
-                    bandname: "Band",
-                    event: "Event",
-                    expiry: "Expiry date",
-                    status: "Status"
-                };
-                const list = document.createElement("dl");
-                for (const [key, label] of Object.entries(labels)) {
-                    if (data.details[key] === undefined) {
-                        continue;
-                    }
-                    const term = document.createElement("dt");
-                    term.textContent = label;
-                    const value = document.createElement("dd");
-                    value.textContent = String(data.details[key]);
-                    list.append(term, value);
+                for (const field of detailFields) {
+                    const value = data.details[field];
+                    document.getElementById(`detail-${field}`).textContent =
+                        value === undefined ? "—" : String(value);
                 }
-                details.appendChild(list);
             }
         } catch (error) {
             // Show an error if the browser cannot contact Flask.
-            result.textContent = "Verification service unavailable.";
+            result.textContent = "Could not check online ID data. Try again.";
             result.style.color = "red";
         }
     }
     </script>
 """
+
+
+@verify_app.get("/status")
+def sheets_status():
+    try:
+        load_id_lists()
+    except RuntimeError:
+        return jsonify(connected=False), 503
+
+    return jsonify(connected=True)
 
 
 # verify scanned QR data
@@ -185,10 +353,12 @@ def verify():
         try:
             # Compare the signed record with the current Google Sheets record.
             current_records = load_id_lists()
-        except RuntimeError as error:
+        except RuntimeError:
+            details["status"] = str(payload.get("status", "unknown")).strip().lower()
             return jsonify(
                 accepted=False,
-                message=f"Unable to check current ID status: {error}",
+                message="Offline and online ID data do not match, check Google Sheets",
+                details=details,
             ), 503
 
         current_record = current_records.get(id_number.strip())
@@ -200,24 +370,10 @@ def verify():
             ), 400
 
         current_status = current_record.get("status", "").strip().lower()
-        signed_status = payload.get("status")
-        signed_status = (
-            signed_status.strip().lower()
-            if isinstance(signed_status, str)
-            else ""
-        )
         details["status"] = current_status
 
-        if current_status != signed_status:
-            # Reject QR codes whose status has changed since they were issued.
-            return jsonify(
-                accepted=False,
-                message="QR code status does not match the current registry.",
-                details=details,
-            ), 400
-
         if current_status != "approved":
-            # Current records must still be approved at verification time.
+            # Report the live registry decision before comparing the old QR status.
             messages = {
                 "pending": "ID is pending approval.",
                 "revoked": "ID has been revoked.",
@@ -229,6 +385,23 @@ def verify():
                 message=messages.get(current_status, "ID is not approved."),
                 details=details,
             ), 400
+
+        fields_to_compare = (
+            "firstname",
+            "lastname",
+            "role",
+            "bandname",
+            "status",
+        )
+        for field in fields_to_compare:
+            signed_value = str(payload.get(field, "")).strip().casefold()
+            current_value = str(current_record.get(field, "")).strip().casefold()
+            if signed_value != current_value:
+                return jsonify(
+                    accepted=False,
+                    message="QR code does not match the current registry.",
+                    details=details,
+                ), 400
 
     except (OSError, TypeError, ValueError, KeyError) as error:
         return jsonify(
