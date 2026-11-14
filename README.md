@@ -9,8 +9,9 @@
 </div>
 <!-- markdownlint-enable MD033 MD041 -->
 
-> [!NOTE]
+> [!WARNING]
 > This is a working prototype, changes in development will occur rapidly and may not reflect the final system.
+> This README is still being rewritten. Refer to old_README.md for setup instructions
 
 ## Ethical Disclaimer
 
@@ -74,7 +75,7 @@
 * opencv-python v4.10 or later
 * Flask v3.1.3 or later
 
-Install the dependecies:
+Install the dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
@@ -87,6 +88,4 @@ python -m pip install -r requirements.txt
 > [!IMPORTANT]
 > Make sure you have a Google Cloud account available, this will not incur any credits or payments for using the OAuth session.
 
-**This README is still being rewritten. Refer to old_README.md for setup instructions (unchanged).**
-
-Found at markdown/
+Found at markdown/old_README.md

@@ -14,22 +14,13 @@ from sheets import load_id_lists
 
 GENERATED_QR_PATH = Path("generated_qr_images")
 
-EXIT_TYPOS = {
-    "exis", 
-    "exix", 
-    "exid", 
-    "exir", 
-    "exitt", 
-    "wxit", 
-    "rxit", 
-    "dxit", 
-    "efit"
-    }
+EXIT_TYPOS = {"exis", "exix", "exid", "exir", "exitt", "wxit", "rxit", "dxit", "efit"}
 
 EVENT_CONFIG_FILE = Path("event_config.json")
 verifier_process = None
 VERIFIER_HOST = "127.0.0.1"
 VERIFIER_PORT = 5000
+
 
 def get_expiry_date(current_value=None):
     # Keep asking until the user provides a valid expiry date.
@@ -53,6 +44,7 @@ def get_expiry_date(current_value=None):
 
         print("Expiry date cannot be empty. Please input a date.")
 
+
 def get_event_name(current_value=None):
     # Collect the event name, keeping the existing value as the default.
     while True:
@@ -71,6 +63,7 @@ def get_event_name(current_value=None):
             continue
 
         return event_name
+
 
 def load_event_config():
     if not EVENT_CONFIG_FILE.exists():
@@ -99,6 +92,7 @@ def load_event_config():
 
     return {"event_name": event_name.strip(), "expiry_date": expiry_date}
 
+
 def save_event_config(event_name, expiry_date):
     config = {
         "event_name": event_name,
@@ -113,6 +107,7 @@ def save_event_config(event_name, expiry_date):
         raise RuntimeError(
             f"Could not save event settings to '{EVENT_CONFIG_FILE}'."
         ) from error
+
 
 def configure_event():
     # Ask for settings once and save them for later runs.
@@ -133,12 +128,14 @@ def configure_event():
     print(f"Event settings saved to {EVENT_CONFIG_FILE}.")
     return {"event_name": event_name, "expiry_date": expiry_date}
 
+
 def get_event_config():
     config = load_event_config()
     if config is None:
         print("No event details found, please set them.")
         return configure_event()
     return config
+
 
 def display_id(id_number, person, event_name, expiry_date):
     # Show the details attached to the matching ID record.
@@ -150,6 +147,7 @@ def display_id(id_number, person, event_name, expiry_date):
     print(f"Headshot picture: {person['headshot']}")
     print(f"Expiry date: {expiry_date}")
     print("------------------------------")
+
 
 def identify_id(id_number, id_lists, event_name, expiry_date):
     # Apply the record status before displaying details or generating a QR code.
@@ -169,24 +167,27 @@ def identify_id(id_number, id_lists, event_name, expiry_date):
         print(f"Reason: status is {status}.")
         id_lookup()
         return
-    
+
     if status == "pending":
         # Pending records can be viewed but cannot generate an approved QR code.
         print("\nThis ID is currently pending.")
         display_id(id_number, person, event_name, expiry_date)
         return
-    
+
     if status != "approved":
         # Treat unrecognized statuses as invalid rather than allowing access.
         print(f"\nThis ID has an invalid status: {status!r}.")
-        print("ID status should either be the following: approved, pending, denied or revoked")
+        print(
+            "ID status should either be the following: approved, pending, denied or revoked"
+        )
         print("Access denied. Check Google Sheets and try again.")
         return
-    
+
     print("\nThis ID is APPROVED.")
     display_id(id_number, person, event_name, expiry_date)
     # Only approved records can proceed to optional QR generation.
     qr_generator.qr_inquiry(id_number, person, event_name, expiry_date)
+
 
 # Option 1
 def id_lookup():
@@ -201,7 +202,7 @@ def id_lookup():
 
     event_name = config["event_name"]
     expiry_date = config["expiry_date"]
-    
+
     try:
         print("Obtaining information from Google Sheets...")
         id_lists = load_id_lists()
@@ -213,15 +214,14 @@ def id_lookup():
     while True:
         print("To return to menu, type 'exit'")
         user_id = input("Enter ID number: ")
-        
         if user_id in EXIT_TYPOS:
             print("Did you mean exit?")
-        
         if user_id == "exit":
             print("Returning to menu...")
             break
-        else:        
+        else:
             identify_id(user_id, id_lists, event_name, expiry_date)
+
 
 # Option 2
 def verify_qr_image():
@@ -242,18 +242,14 @@ def verify_qr_image():
         if not image_input:
             print("QR image path cannot be empty.")
             continue
-        
         if image_input in EXIT_TYPOS:
             print("Did you mean exit?")
-        
         if image_input == "exit":
             print("Returning to menu.")
             break
-
         image_path = Path(image_input)
         if not image_path.is_absolute() and image_path.parent == Path("."):
             image_path = GENERATED_QR_PATH / image_path
-
         try:
             payload = decode_qr_image(str(image_path))
             public_key = load_public_key()
@@ -266,20 +262,15 @@ def verify_qr_image():
 
 def start_verifier():
     global verifier_process
-
     if verifier_process is not None and verifier_process.poll() is None:
         print(f"QR verifier is already running (PID {verifier_process.pid}).")
         return
-
     try:
-        with socket.create_connection(
-            (VERIFIER_HOST, VERIFIER_PORT), timeout=0.5
-        ):
+        with socket.create_connection((VERIFIER_HOST, VERIFIER_PORT), timeout=0.5):
             print(f"QR verifier is already running on port {VERIFIER_PORT}.")
             return
     except OSError:
         pass
-
     cmd = [sys.executable, "verify_app.py"]
     try:
         if os.name == "nt":
@@ -339,10 +330,9 @@ def show_menu():
 
     event_name = config["event_name"] if config else "Not set"
     expiry_date = config["expiry_date"] if config else "Not set"
-    
-    with open ("VERSION.txt", "r", encoding="utf-8") as file:
+
+    with open("VERSION.txt", "r", encoding="utf-8") as file:
         version = file.read()
-        
 
     print("DigitalIDSystem (placeholder)")
     print(version)
@@ -358,6 +348,7 @@ def show_menu():
     print("4. Stop QR verifier server")
     print("5. Edit event settings")
     print("6. Exit (or type 'exit')")
+
 
 # program initialization
 def main():
@@ -387,9 +378,8 @@ def main():
             raise SystemExit
         else:
             print("Invalid option.")
-    
+
 
 # launch program
 if __name__ == "__main__":
     main()
-    

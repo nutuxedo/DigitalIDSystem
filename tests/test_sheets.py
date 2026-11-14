@@ -1,6 +1,5 @@
 # test for sheets.py
 # pytest assert
-
 from sheets import _find_columns, _normalize_column_name
 
 
@@ -8,16 +7,19 @@ def test_student_id():
     actual = _normalize_column_name("Student_ID")
     expected = "student id"
     assert actual == expected
-    
+
+
 def test_name():
     actual = _normalize_column_name("            Name")
     expected = "name"
     assert actual == expected
-    
+
+
 def test_first_name():
     actual = _normalize_column_name("FIRST   NAMe")
     expected = "first name"
     assert actual == expected
+
 
 def test_find_columns():
     headers = [
@@ -30,7 +32,7 @@ def test_find_columns():
         "band",
         "approval status",
         "date and time",
-        "email add"
+        "email add",
     ]
     actual = _find_columns(headers)
     expected = {
@@ -43,6 +45,6 @@ def test_find_columns():
         "bandname": "band",
         "status": "approval status",
         "timestamp": "date and time",
-        "email": "email add"
+        "email": "email add",
     }
     assert actual == expected
