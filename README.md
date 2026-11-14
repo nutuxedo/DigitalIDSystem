@@ -6,6 +6,9 @@
 <h3>
   A Python CLI digital ID platform for issuing and verifying event credentials.
 </h3>
+
+<img alt="Static Badge" src="https://img.shields.io/badge/v0.4.0-alpha-red">
+
 </div>
 <!-- markdownlint-enable MD033 MD041 -->
 
