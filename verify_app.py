@@ -1,4 +1,6 @@
 # Flask web app for QR verification
+# This code is heavily AI-assisted with GitHub Copilot
+# To edit the website, head to templates/index.html
 # Prototype only- final app might be native development (Kotlin/Java)
 # Run with: .venv/bin/python verify_app.py
 # Then open: https://127.0.0.1:5000 (current device)
@@ -9,7 +11,7 @@ import json
 from pathlib import Path
 
 # Flask creates the web app and handles browser requests.
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, render_template, request, send_from_directory
 
 from sheets import load_id_lists
 
@@ -24,112 +26,23 @@ verify_app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
 @verify_app.get("/")
 def home():
     # This page opens the phone camera and reads QR codes.
-    return """
-    <h1>Bouncer Verifier</h1>
-    <p>Scan an event QR code to verify it.</p>
-    <button onclick="startScan()">Scan QR</button>
-    <h2 id="result"></h2>
-    <div id="details"></div>
+    return render_template("index.html")
 
-    <script src="/html5-qrcode.min.js"></script>
-    <div id="reader"></div>
 
-    <script>
-    let scanner;
+@verify_app.get("/status")
+def sheets_status():
+    try:
+        load_id_lists()
+    except RuntimeError:
+        return jsonify(connected=False), 503
 
-    async function startScan() {
-        scanner = new Html5Qrcode("reader");
-
-        try {
-            const cameras = await Html5Qrcode.getCameras();
-
-            if (!cameras.length) {
-                throw new Error("No camera found");
-            }
-
-            // Prefer the rear/main camera, avoiding ultrawide lenses.
-            const camera =
-                cameras.find(c => /back|rear|main|1x/i.test(c.label) &&
-                                  !/0[.]5x|ultra.?wide|wide/i.test(c.label))
-                || cameras.find(c => /back|rear|environment/i.test(c.label))
-                || cameras[0];
-
-            await scanner.start(
-                camera.id,
-                { fps: 10, qrbox: { width: 450, height: 450 } },
-                async decodedText => {
-                    await verifyQr(decodedText);
-                    await scanner.stop();
-                },
-                () => {}
-            );
-        } catch (error) {
-            console.error("Camera error:", error);
-
-            document.getElementById("result").textContent =
-                "Camera error: " + String(error);
-        }
-    }
-
-    async function verifyQr(decodedText) {
-        const result = document.getElementById("result");
-        const details = document.getElementById("details");
-        result.textContent = "Checking...";
-        result.style.color = "black";
-        details.replaceChildren();
-
-        try {
-            // Send the QR data to the /verify Flask endpoint.
-            const response = await fetch("/verify", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ qr_data: decodedText })
-            });
-            const data = await response.json();
-            result.textContent = data.message;
-            result.style.color = data.accepted ? "green" : "red";
-
-            if (data.details) {
-                const heading = document.createElement("h3");
-                heading.textContent = "ID details";
-                details.appendChild(heading);
-
-                const labels = {
-                    id: "ID",
-                    firstname: "First name",
-                    lastname: "Last name",
-                    role: "Role",
-                    bandname: "Band",
-                    event: "Event",
-                    expiry: "Expiry date",
-                    status: "Status"
-                };
-                const list = document.createElement("dl");
-                for (const [key, label] of Object.entries(labels)) {
-                    if (data.details[key] === undefined) {
-                        continue;
-                    }
-                    const term = document.createElement("dt");
-                    term.textContent = label;
-                    const value = document.createElement("dd");
-                    value.textContent = String(data.details[key]);
-                    list.append(term, value);
-                }
-                details.appendChild(list);
-            }
-        } catch (error) {
-            // Show an error if the browser cannot contact Flask.
-            result.textContent = "Verification service unavailable.";
-            result.style.color = "red";
-        }
-    }
-    </script>
-"""
+    return jsonify(connected=True)
 
 
 # verify scanned QR data
 @verify_app.post("/verify")
 def verify():
+    # Validate a scanned QR payload and return a browser-friendly result.
     # Read the JSON request sent by the browser.
     body = request.get_json(silent=True)
     if not isinstance(body, dict) or not isinstance(body.get("qr_data"), str):
@@ -151,6 +64,7 @@ def verify():
             ), 400
 
         details = {
+            # Return safe display fields without exposing the signature.
             field: payload[field]
             for field in (
                 "id",
@@ -181,11 +95,14 @@ def verify():
             ), 400
 
         try:
+            # Compare the signed record with the current Google Sheets record.
             current_records = load_id_lists()
-        except RuntimeError as error:
+        except RuntimeError:
+            details["status"] = str(payload.get("status", "unknown")).strip().lower()
             return jsonify(
                 accepted=False,
-                message=f"Unable to check current ID status: {error}",
+                message="Offline and online ID data do not match, check Google Sheets",
+                details=details,
             ), 503
 
         current_record = current_records.get(id_number.strip())
@@ -197,22 +114,10 @@ def verify():
             ), 400
 
         current_status = current_record.get("status", "").strip().lower()
-        signed_status = payload.get("status")
-        signed_status = (
-            signed_status.strip().lower()
-            if isinstance(signed_status, str)
-            else ""
-        )
         details["status"] = current_status
 
-        if current_status != signed_status:
-            return jsonify(
-                accepted=False,
-                message="QR code status does not match the current registry.",
-                details=details,
-            ), 400
-
         if current_status != "approved":
+            # Report the live registry decision before comparing the old QR status.
             messages = {
                 "pending": "ID is pending approval.",
                 "revoked": "ID has been revoked.",
@@ -224,6 +129,23 @@ def verify():
                 message=messages.get(current_status, "ID is not approved."),
                 details=details,
             ), 400
+
+        fields_to_compare = (
+            "firstname",
+            "lastname",
+            "role",
+            "bandname",
+            "status",
+        )
+        for field in fields_to_compare:
+            signed_value = str(payload.get(field, "")).strip().casefold()
+            current_value = str(current_record.get(field, "")).strip().casefold()
+            if signed_value != current_value:
+                return jsonify(
+                    accepted=False,
+                    message="QR code does not match the current registry.",
+                    details=details,
+                ), 400
 
     except (OSError, TypeError, ValueError, KeyError) as error:
         return jsonify(
@@ -240,6 +162,7 @@ def verify():
 
 @verify_app.get("/html5-qrcode.min.js")
 def scanner_library():
+    # Serve the local QR scanner library to the verification page.
     return send_from_directory(
         Path(__file__).parent / "static",
         "html5-qrcode.min.js",
@@ -250,9 +173,4 @@ def scanner_library():
 if __name__ == "__main__":
     # 0.0.0.0 allows another device on the same network to connect.
     # HTTPS is needed for camera access on most phones.
-    verify_app.run(
-        host="0.0.0.0", 
-        port=5000, 
-        debug=False,
-        ssl_context="adhoc"
-    )
+    verify_app.run(host="0.0.0.0", port=5000, debug=False, ssl_context="adhoc")

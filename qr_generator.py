@@ -17,6 +17,7 @@ PRIVATE_KEY_FILE = Path("signing_private_key.pem")
 
 
 def save_public_key(public_key):
+    # Keep the public key synchronized with the private signing key.
     expected_key = public_key.public_bytes(
         encoding=serialization.Encoding.DER,
         format=serialization.PublicFormat.SubjectPublicKeyInfo,
@@ -51,6 +52,7 @@ def save_public_key(public_key):
 
 
 def load_or_create_private_key():
+    # Load a protected private key or create one for the first run.
     if PRIVATE_KEY_FILE.exists():
         permissions = PRIVATE_KEY_FILE.stat().st_mode
         if permissions & (stat.S_IRWXG | stat.S_IRWXO):
@@ -87,10 +89,12 @@ save_public_key(public_key)
 
 
 def sign_message(message, private_key):
+    # Sign the canonical payload before it is placed in the QR code.
     return private_key.sign(message)
 
 
 def verify_payload(payload):
+    # Confirm that the QR payload has not changed since it was signed.
     signature_text = payload.pop("signature", None)
 
     if signature_text is None:
@@ -116,6 +120,7 @@ def verify_payload(payload):
 
 
 def qr_generation(id_number, person, event_name, expiry_date):
+    # Build, sign, and save the QR payload for an approved ID.
     payload = {
         "id": id_number,
         "firstname": person["firstname"],
@@ -136,6 +141,7 @@ def qr_generation(id_number, person, event_name, expiry_date):
     signature = sign_message(message, private_key)
     payload["signature"] = base64.b64encode(signature).decode("ascii")
 
+    # Keep generated filenames safe and predictable.
     safe_id = re.sub(r"[^A-Za-z0-9_-]+", "_", id_number).strip("_")
     output_folder = Path("generated_qr_images")
     output_folder.mkdir(parents=True, exist_ok=True)
@@ -146,6 +152,7 @@ def qr_generation(id_number, person, event_name, expiry_date):
 
 
 def qr_inquiry(id_number, person, event_name, expiry_date):
+    # Ask for confirmation before creating the QR image.
     while True:
         answer = input("Generate QR code? (Y/n) ").strip().lower()
         if answer in ("y", ""):

@@ -7,3 +7,4 @@
 - GigCheck
 - Checkpass
 - Bounce
+- Stagepass
