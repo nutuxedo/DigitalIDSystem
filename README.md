@@ -87,4 +87,6 @@ python -m pip install -r requirements.txt
 > [!IMPORTANT]
 > Make sure you have a Google Cloud account available, this will not incur any credits or payments for using the OAuth session.
 
-Lorem ipsum
+**This README is still being rewritten. Refer to old_README.md for setup instructions (unchanged).**
+
+Found at markdown/
