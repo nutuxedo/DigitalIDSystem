@@ -63,7 +63,7 @@ Planned before or after the November 20 event:
 Also check [FEEDBACK_TESTS.md](./FEEDBACK_TESTS.md) for additional information.
 
 - [x] Add one CLI menu for ID lookup/QR generation and QR-image verification. ([#10](https://github.com/nutuxedo/DigitalIDSystem/issues/10))
-- [ ] Integrate the Flask phone verifier into the CLI menu. ([#15](https://github.com/nutuxedo/DigitalIDSystem/issues/15))
+- [x] Integrate the Flask phone verifier into the CLI menu. ([#15](https://github.com/nutuxedo/DigitalIDSystem/issues/15))
 - [x] Show ID details in the verifier app. [MUST] ([#9](https://github.com/nutuxedo/DigitalIDSystem/issues/9))
 - [x] Protect the private signing key. ([#5](https://github.com/nutuxedo/DigitalIDSystem/issues/5))
 - [x] Check current revocation status. ([#7](https://github.com/nutuxedo/DigitalIDSystem/issues/7))

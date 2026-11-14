@@ -173,9 +173,4 @@ def scanner_library():
 if __name__ == "__main__":
     # 0.0.0.0 allows another device on the same network to connect.
     # HTTPS is needed for camera access on most phones.
-    verify_app.run(
-        host="0.0.0.0", 
-        port=5000, 
-        debug=False,
-        ssl_context="adhoc"
-    )
+    verify_app.run(host="0.0.0.0", port=5000, debug=False, ssl_context="adhoc")
