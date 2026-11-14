@@ -63,7 +63,7 @@ Planned before or after the November 20 event:
 Also check [FEEDBACK_TESTS.md](./FEEDBACK_TESTS.md) for additional information.
 
 - [x] Add one CLI menu for ID lookup/QR generation and QR-image verification. ([#10](https://github.com/nutuxedo/DigitalIDSystem/issues/10))
-- [ ] Integrate the Flask phone verifier into the CLI menu. ([#15](https://github.com/nutuxedo/DigitalIDSystem/issues/15))
+- [x] Integrate the Flask phone verifier into the CLI menu. ([#15](https://github.com/nutuxedo/DigitalIDSystem/issues/15))
 - [x] Show ID details in the verifier app. [MUST] ([#9](https://github.com/nutuxedo/DigitalIDSystem/issues/9))
 - [x] Protect the private signing key. ([#5](https://github.com/nutuxedo/DigitalIDSystem/issues/5))
 - [x] Check current revocation status. ([#7](https://github.com/nutuxedo/DigitalIDSystem/issues/7))
@@ -71,8 +71,8 @@ Also check [FEEDBACK_TESTS.md](./FEEDBACK_TESTS.md) for additional information.
 - [ ] Store less personal information in QR codes. ([#11](https://github.com/nutuxedo/DigitalIDSystem/issues/11))
 - [x] Detect public/private key mismatches. ([#8](https://github.com/nutuxedo/DigitalIDSystem/issues/8))
 - [ ] Redo the README. ([#13](https://github.com/nutuxedo/DigitalIDSystem/issues/13))
-- [ ] Cleanup the COLUMN_ALIASES at sheets.py. ([#18](https://github.com/nutuxedo/DigitalIDSystem/issues/18))
-- [ ] Address public testing feedback from [FEEDBACK_TESTS.md](./FEEDBACK_TESTS.md). ([#19](https://github.com/nutuxedo/DigitalIDSystem/issues/19))
+- [x] Cleanup the COLUMN_ALIASES at sheets.py. ([#18](https://github.com/nutuxedo/DigitalIDSystem/issues/18))
+- [x] Address public testing feedback from [FEEDBACK_TESTS.md](./FEEDBACK_TESTS.md). ([#19](https://github.com/nutuxedo/DigitalIDSystem/issues/19))
 - [ ] Start implementing automated tests with `pytest` [#17](https://github.com/nutuxedo/DigitalIDSystem/issues/17)
 
 ## Milestone 7: Major future changes (low prio)
