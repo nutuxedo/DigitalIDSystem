@@ -2,6 +2,10 @@
 # Redo soon with GUI (Kotlin/Java)
 
 import json
+import os
+import socket
+import subprocess
+import sys
 from datetime import date
 from pathlib import Path
 
@@ -23,6 +27,9 @@ EXIT_TYPOS = {
     }
 
 EVENT_CONFIG_FILE = Path("event_config.json")
+verifier_process = None
+VERIFIER_HOST = "127.0.0.1"
+VERIFIER_PORT = 5000
 
 def get_expiry_date(current_value=None):
     # Keep asking until the user provides a valid expiry date.
@@ -256,6 +263,71 @@ def verify_qr_image():
         except (OSError, RuntimeError, TypeError, ValueError, KeyError) as error:
             print(f"Could not verify QR image: {error}")
 
+
+def start_verifier():
+    global verifier_process
+
+    if verifier_process is not None and verifier_process.poll() is None:
+        print(f"QR verifier is already running (PID {verifier_process.pid}).")
+        return
+
+    try:
+        with socket.create_connection(
+            (VERIFIER_HOST, VERIFIER_PORT), timeout=0.5
+        ):
+            print(f"QR verifier is already running on port {VERIFIER_PORT}.")
+            return
+    except OSError:
+        pass
+
+    cmd = [sys.executable, "verify_app.py"]
+    try:
+        if os.name == "nt":
+            verifier_process = subprocess.Popen(
+                cmd,
+                creationflags=subprocess.DETACHED_PROCESS
+                | subprocess.CREATE_NEW_PROCESS_GROUP,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                close_fds=True,
+            )
+        else:
+            verifier_process = subprocess.Popen(
+                cmd,
+                start_new_session=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                close_fds=True,
+            )
+    except OSError as error:
+        verifier_process = None
+        print(f"Could not start QR verifier: {error}")
+        return
+
+    print(f"QR verifier started (PID {verifier_process.pid}).")
+
+
+def stop_verifier():
+    global verifier_process
+
+    if verifier_process is None or verifier_process.poll() is not None:
+        verifier_process = None
+        print("QR verifier is not running.")
+        return
+
+    verifier_process.terminate()
+    try:
+        verifier_process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        verifier_process.kill()
+        verifier_process.wait()
+
+    print("QR verifier stopped.")
+    verifier_process = None
+
+
 # CLI menu
 def show_menu():
     # Display the actions available from the command-line menu.
@@ -278,13 +350,14 @@ def show_menu():
     print("\nCurrent event details")
     print(f"\nEvent name: {event_name}")
     print(f"Expiry date: {expiry_date}")
-    print("\nTo change these details, type 4.")
+    print("\nTo change these details, type 5.")
     print("\n========================================")
     print("\n1. ID lookup and generate QR code")
     print("2. Verify QR image")
-    print("3. Start QR verifier server (No function)")
-    print("4. Edit event settings")
-    print("5. Exit (or type 'exit')")
+    print("3. Start QR verifier server")
+    print("4. Stop QR verifier server")
+    print("5. Edit event settings")
+    print("6. Exit (or type 'exit')")
 
 # program initialization
 def main():
@@ -299,15 +372,17 @@ def main():
         elif choice == "2":
             verify_qr_image()
         elif choice == "3":
-            print("To add. Please launch 'verify_app.py'.")    
+            start_verifier()
         elif choice == "4":
+            stop_verifier()
+        elif choice == "5":
             try:
                 configure_event()
             except RuntimeError as error:
                 print(f"Could not save event settings: {error}")
         elif choice in EXIT_TYPOS:
             print("Did you mean exit?")
-        elif choice in ("5", "exit"):
+        elif choice in ("6", "exit"):
             print("Exiting program.")
             raise SystemExit
         else:
