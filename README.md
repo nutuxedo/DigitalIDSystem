@@ -91,4 +91,12 @@ python -m pip install -r requirements.txt
 > [!IMPORTANT]
 > Make sure you have a Google Cloud account available, this will not incur any credits or payments for using the OAuth session.
 
-Found at markdown/old_README.md
+1. On Google Cloud, create a new project and enable **Google Sheets API**.
+2. Configure the OAuth consent screen through **API & Services > OAuth consent screen**.
+3. Ensure it is set to External.
+4. Google account should be set as test user and request the Sheets scope as read-only
+5. Ensure the Google account has **Viewer** access to your spreadsheet.
+6. Copy the spreadsheet Id from the URL:
+   * Example: `https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit/...`
+7. Install Python dependencies.
+8. S
