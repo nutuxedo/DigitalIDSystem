@@ -8,7 +8,7 @@ oauth_client.json
 token.json
 event_config.json
 .ruff_cache/
-generated_qr_images/*.png
+generated_qr_images/
 signing_private_key.pem
 AGENTS.md
 
